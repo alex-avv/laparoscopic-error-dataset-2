@@ -105,6 +105,6 @@ for row in range(0,len(ochra)):
         video_file = ochra[row, 4]
 
 # Test #2
-        
+
 # 2nd part of measuring time of execution of the code
 # print('Executed in %.2f seconds.' % (time.time() - start_time))
