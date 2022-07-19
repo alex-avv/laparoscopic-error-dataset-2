@@ -32,6 +32,9 @@ for row in range(2,len(analysis_xls)):      # Looping through rows [from 3rd row
     if check11 == True:       # If all instances in the row are empty, row number is recorded and loop is exited
         ochra_last_row = row
         break
+
+for n in range(0, 11):
+    x = 1
     
 # Storing the OCHRA data in a new variable using the positional information obtained earlier
 ochra_xls = analysis_xls[2:ochra_last_row, 0:11]

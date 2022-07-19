@@ -130,7 +130,7 @@ for index in range(1,91):
         except:     # If it is not possible to retrieve the OCHRA data from the file, the case number is recorded 
             failed_files = failed_files + f', {index}'
     
-    
+
 # Printing on screen the files that are missing and with failed OCHRA data extraction
 # print(f'\nCases {missing_files[2:]} are missing')
 # print(f'Cases {failed_files[2:]} have inappropriate/failed OCHRA data ')
