@@ -12,7 +12,8 @@ import numpy as np
 start_time = time.time()
 
 # Moving to directory where anotations are stored
-os.chdir("C:/Users/aleja/OneDrive - University College London/Griffin Institute collaboration/Grifin_annotations")
+# os.chdir("C:/Users/aleja/OneDrive - University College London/Griffin Institute collaboration/Grifin_annotations")
+os.chdir("C:/Users/Sera Bostan/University College London/Mazomenos, Evangelos - Griffin Institute collaboration/Grifin_annotations")
 
 # Importing Excel file, particularly the 'Analysis' sheet within the file
 analysis_xls = pd.read_excel('Case 3.xls', sheet_name='Analysis').values
@@ -107,7 +108,7 @@ for row in range(0,len(ochra)):
     if (ochra[row, 2] == 'START') == True:
         video_file = ochra[row, 4]
 
-# Test #2
+# I commented this
 
 # 2nd part of measuring time of execution of the code
 # print('Executed in %.2f seconds.' % (time.time() - start_time))
