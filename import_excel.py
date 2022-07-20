@@ -34,9 +34,6 @@ for row in range(2,len(analysis_xls)):      # Looping through rows [from 3rd row
         ochra_last_row = row
         break
 
-for n in range(0, 11):
-    x = 1
-    
 # Storing the OCHRA data in a new variable using the positional information obtained earlier
 ochra_xls = analysis_xls[2:ochra_last_row, 0:11]
 
@@ -68,7 +65,7 @@ for row in range(0,len(ochra)):     # Looping through all of the instances in th
         ochra[row, 10] = str(ochra[row, 10])      # Changing to string type
 
 
-""" Labelling each annotation as START, ERR (Error) or N.P. (Not Performed) """
+"""¨¨¨ Labelling each annotation as START, ERR (Error) or N.P. (Not Performed) ¨¨¨"""
 # Each event is given one of these 3 descriptive labels for easier identification and working with later on 
 ochra = np.insert(ochra, 2, np.full(len(ochra), np.nan), 1)         # Adding an empty column to hold the labels
 

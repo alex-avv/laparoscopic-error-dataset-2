@@ -1,5 +1,5 @@
 %reset -f
-""" Setting up environment & files' path """
+"""¨¨¨ Setting up environment & files' path ¨¨¨"""
 # Importing python libraries
 import sys
 import os
@@ -12,10 +12,10 @@ import numpy as np
 os.chdir("C:/Users/aleja/OneDrive - University College London/Griffin Institute collaboration/Grifin_annotations")
 
 
-""" Extracting and saving OCHRA information """
+"""¨¨¨ Extracting and saving OCHRA information ¨¨¨"""
 def extract_ochra(analysis_xls):
     ochra_last_row = None     # 'ochra_last_row' is used to store the last row position of the OCHRA data lataer on. Resetting the variable
-    
+
     # Looping through 'all' rows and columns to find the size and position of the OCHRA information
     for row in range(2,len(analysis_xls)):      # Looping through rows [from 3rd row to last row in the sheet]
         check11 = True       # 'check11' is used later on. Resetting variable
@@ -27,34 +27,32 @@ def extract_ochra(analysis_xls):
         if check11 == True:       # If all instances in the row are empty, row number is recorded and loop is exited
             ochra_last_row = row
             break
-        
+
     # Storing the OCHRA data in a new variable using the positional information obtained earlier
     ochra_xls = analysis_xls[2:ochra_last_row, 0:11]
-    
+
     # Sanity check to confirm the retrieved OCHRA data does not have the 'Totals' (shown below in the Excel sheet)
     if ('Totals' in ochra_xls) == True:
         sys.exit("OCHRA data retrieved incorrectly. 'Totals' info was also extracted")
         
     # Copying the OCHRA data into a new variable for modification, keeping the original OCHRA data
     ochra = np.copy(ochra_xls)      # 'ochra' will contain the adjusted OCHRA information. Setting the variable
-    
-    """ Filling first column ('Task Area') approppriately """
-    # Only the first of a group of annotations belonging to the same Task Area has the first column filled (shown in Excel sheet). Filling out the rest of empty instances
+
+    """ Modifying first column ('Task Area') labels to an appropriate format """
     for row in range(0,len(ochra)):     # Looping through all of the instances in the column
-        if pd.isna(ochra[row, 0]) == True:      # If instance is not filled out, appointing value of previous instance
-            ochra[row, 0] = ochra[row - 1, 0]
-        ochra[row, 0] = int(ochra[row, 0])      # Changing to integer type
-    
+        if pd.isna(ochra[row, 0]) == False:
+            ochra[row, 0] = int(ochra[row, 0])      # Changing to integer type
+
     """ Modifying second column ('Subtask Area') labels to an appropriate format """
     for row in range(0,len(ochra)):     # Looping through all of the instances in the column
         if pd.isna(ochra[row, 1]) == False:
             ochra[row, 1] = str(ochra[row, 1])      # Changing to string type
-    
+
     """ Modifying third column ('Timecode') times to an appropriate format """
     for row in range(0,len(ochra)):     # Looping through all of the instances in the column
         if pd.isna(ochra[row, 2]) == False:
             ochra[row, 2] = datetime.combine(date.min, ochra[row, 2]) - datetime.min      # Changing to .timedelta format (for easier working with later)
-    
+
     """ Modifying last column ('Further info') to an appropriate format """
     for row in range(0,len(ochra)):     # Looping through all of the instances in the column
         if pd.isna(ochra[row, 10]) == False:
@@ -63,7 +61,7 @@ def extract_ochra(analysis_xls):
     return ochra       # Giving 'ochra' to the function's output
 
 
-""" Testing OCHRA information is in the correct format"""
+"""¨¨¨ Testing OCHRA information is in the correct format ¨¨¨"""
 def test_ochra(ochra):
     check21 = True       # 'check21' is used later on. Resetting variable
     
@@ -83,27 +81,7 @@ def test_ochra(ochra):
     return check21      # Returning the value of 'check21' to the function's output
 
 
-""" Adding a  OCHRA information is in the correct format"""
-def test_ochra(ochra):
-    check21 = True       # 'check21' is used later on. Resetting variable
-    
-    """ Checking first column ('Task Area') """
-    # Confirming all instances in the column are between 1-10
-    for row in range(0,len(ochra)):
-        if (ochra[row, 0] in [1,2,3,4,5,6,7,8,9,10]) == False:       # If an instance is not in the appropriate format, case number is recorded
-            check21 = False
-            
-    """ Checking second column ('Subtask Area') """
-    # Confirming all instances in the column are between a-d
-    for row in range(0,len(ochra)):
-        if pd.isna(ochra[row, 1]) == False:
-            if (ochra[row, 1] in ['a','b','c','d']) == False:       # If an instance is not in the appropriate format, case number is recorded
-                check21 = False
-    
-    return check21      # Returning the value of 'check21' to the function's output
-
-
-""" Importing files & testing if OCHRA information is in correct format """
+"""¨¨¨ Importing files & testing if OCHRA information is in correct format ¨¨¨"""
 # 1st part of measuring time of execution of the code
 start_time = time.time()
 
