@@ -9,7 +9,7 @@ import pandas as pd
 import numpy as np
 
 # 1st part of measuring time of execution of the code
-start_time = time.time()
+# start_time = time.time()
 
 # Moving to directory where anotations are stored
 os.chdir("C:/Users/aleja/OneDrive - University College London/Griffin Institute collaboration/Grifin_annotations/2D3D VIDEOS")
