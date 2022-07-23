@@ -97,14 +97,14 @@ def label_ochra(ochra):
         # If all instances in the row are empty, a DESC label is given
         if (pd.isna(ochra[row, 11]) == False) and (check_filled == False):
             ochra[row, 2] = 'DESC'
-            
-    # There are some events where the 'Timecode', 'Subfile' and 'Further info' are noted but the rest of columns of the OCHRA information are empty. Assuming these are just descriptions and adding the DESC label
+
+    # There are some events where the 'Task Area' and 'Subtask Area' are noted but the rest of columns of the OCHRA information are empty. Assuming these cases were not performed and adding the N.P. label
     for row in range(0,len(ochra)):         # Looping through all rows in 'ochra'
-        check1_filled = False in pd.isna(ochra[row, 0:3])    # Checking if instances in the row [from 'Task Area' column to 'Label' column] are empty or not
-        check2_filled = False in pd.isna(ochra[row, 5:11])    # Checking if instances in the row [from 'Tool-tissue Errors column to 'Location (pelvic)' column] are empty or not
-        # If all instances in the row are empty, a DESC label is given
-        if (pd.isna(ochra[row, 3]) == False) and (pd.isna(ochra[row, 4]) == False) and (pd.isna(ochra[row, 11]) == False) and (check1_filled == False) and (check2_filled == False):
-            ochra[row, 2] = 'DESC'
+        check_filled = False in pd.isna(ochra[row, 2:12])    # Checking if instances in the row [from 'Label' column to 'Further info' column] are empty or not
+        # If all instances in the row are empty, a N.P. label is given
+        if ((pd.isna(ochra[row, 0]) == False) or (pd.isna(ochra[row, 1]) == False)) and (check_filled == False):
+            ochra[row, 2] = 'N.P.'
+            ochra[row, 11] = 'ASSUMED NOT PERFORMED'       # Noting in 'Further info' this event was assumed to not be performed (for clarity)
 
     # There are some events where the 'Task Area', 'Subtask Area', 'Timecode' and 'Subfile' are noted but the rest of columns of the OCHRA information are empty. Assuming these are start events and adding the START label
     for row in range(0,len(ochra)):         # Looping through all rows in 'ochra'
@@ -114,13 +114,12 @@ def label_ochra(ochra):
             ochra[row, 2] = 'START'
             ochra[row, 11] = 'ASSUMED START'       # Noting in 'Further info' this event was assumed to be a start event (for clarity)
 
-    # There are some events where the 'Task Area' and 'Subtask Area' are noted but the rest of columns of the OCHRA information are empty. Assuming these cases were not performed and adding the N.P. label
+    # There are some events where the 'Task Area', 'Subtask Area', 'Timecode', 'Subfile' and 'Further info' are noted but the rest of columns of the OCHRA information are empty. Assuming these are just descriptions and adding the DESC label
     for row in range(0,len(ochra)):         # Looping through all rows in 'ochra'
-        check_filled = False in pd.isna(ochra[row, 2:12])    # Checking if instances in the row [from 'Label' column to 'Further info' column] are empty or not
-        # If all instances in the row are empty, a N.P. label is given
-        if ((pd.isna(ochra[row, 0]) == False) or (pd.isna(ochra[row, 1]) == False)) and (check_filled == False):
-            ochra[row, 2] = 'N.P.'
-            ochra[row, 11] = 'ASSUMED NOT PERFORMED'       # Noting in 'Further info' this event was assumed to not be performed (for clarity)
+        check_filled = False in pd.isna(ochra[row, 5:11])    # Checking if instances in the row [from 'Tool-tissue Errors column to 'Location (pelvic)' column] are empty or not
+        # If all instances in the row are empty, a DESC label is given
+        if (pd.isna(ochra[row, 3]) == False) and (pd.isna(ochra[row, 4]) == False) and (pd.isna(ochra[row, 11]) == False) and (check_filled == False) and (check_words(start, ochra[row, 11]) == False) and (check_words(notperformed, ochra[row, 11]) == False):
+            ochra[row, 2] = 'DESC'
 
     # Marking the rest of events
     for row in range(0,len(ochra)):     # Looping through all rows in 'ochra'
