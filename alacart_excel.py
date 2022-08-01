@@ -1,4 +1,11 @@
-%reset -f
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Jul 27 12:31:46 2022
+
+@author: Sera Bostan
+"""
+
+%reset -f 
 
 """¨¨¨ Setting up environment & importing files ¨¨¨"""
 # Importing python libraries
@@ -13,18 +20,16 @@ import numpy as np
 # start_time = time.time()
 
 # Moving to directory where anotations are stored
-#<<<<<<< Updated upstream
+<<<<<<< Updated upstream
 #os.chdir("C:/Users/aleja/OneDrive - University College London/Griffin Institute collaboration/Grifin_annotations/2D3D VIDEOS")
-#os.chdir("C:/Users/Sera Bostan/University College London/Mazomenos, Evangelos - Griffin Institute collaboration/Grifin_annotations/2D3D VIDEOS")
-#=======
+# os.chdir("C:/Users/Sera Bostan/University College London/Mazomenos, Evangelos - Griffin Institute collaboration/Grifin_annotations")
+=======
 #os.chdir("C:/Users/aleja/OneDrive - University College London/Griffin Institute collaboration/Grifin_annotations")
-os.chdir("C:/Users/Sera Bostan/University College London/Mazomenos, Evangelos - Griffin Institute collaboration/Grifin_annotations/2D3D VIDEOS")
-#>>>>>>> Stashed changes
+os.chdir("C:/Users/Sera Bostan/University College London/Mazomenos, Evangelos - Griffin Institute collaboration/Grifin_annotations/ALACART")
+>>>>>>> Stashed changes
 
 # Importing Excel file, particularly the 'Analysis' sheet within the file
-analysis_xls = pd.read_excel('Case 51.xls', sheet_name='Analysis').values
-
-
+analysis_xls = pd.read_excel('030.xls', sheet_name='Analysis').values
 
 """¨¨¨ Extracting and saving OCHRA information ¨¨¨"""
 ''' def extract_ochra(analysis_xls): '''
@@ -43,7 +48,6 @@ if check_failed == False:
         # If all instances in the row [from 'Task Area' column to 'Further info' column] are empty, row number is recorded and loop is exited
         if (False in pd.isna(analysis_xls[ochra_last_row, 0:11])) == False:
             break
-
 # Storing the OCHRA data in a new variable using the positional information obtained earlier
 ochra_xls = analysis_xls[2:ochra_last_row, 0:11]
 
@@ -162,3 +166,6 @@ for row in range(0,len(ochra)):
 
 # 2nd part of measuring time of execution of the code
 # print('Executed in %.2f seconds.' % (time.time() - start_time))
+
+
+
