@@ -8,8 +8,8 @@ import os
 
 # Defining credentials to connect to the tails.cs.ucl.ac.uk server
 Hostname = "tails.cs.ucl.ac.uk"
-Username = "aavilaca"
-Password = "AAT49ata"
+Username = "sbostan"
+Password = "TdT28ete"
 
 # Disabling host key requirement (to be able to access the server) (https://stackoverflow.com/questions/38939454/verify-host-key-with-pysftp)
 cnopts = pysftp.CnOpts()
