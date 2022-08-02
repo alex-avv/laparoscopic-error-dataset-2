@@ -10,7 +10,8 @@ import pandas as pd
 import numpy as np
 
 # Moving to directory where anotations are stored
-os.chdir("C:/Users/Sera Bostan/University College London/Mazomenos, Evangelos - Griffin Institute collaboration/Grifin_annotations/2D3D VIDEOS")
+os.chdir("C:/Users/aleja/OneDrive - University College London/Griffin Institute collaboration/Grifin_annotations/2D3D VIDEOS")
+#os.chdir("C:/Users/Sera Bostan/University College London/Mazomenos, Evangelos - Griffin Institute collaboration/Grifin_annotations/2D3D VIDEOS")
 """¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨"""
 
 
@@ -231,7 +232,7 @@ def videoinfo_ochra(ochra, index):
     end = end.total_seconds()       # 'end' contains the end time of the last video in seconds
 
     # This function plots the graph
-    def plot_timeLine(name, results, end):
+    def plot_timeLine(name, results, end, index):
         # Importing Python libraries for the plot
         import matplotlib.pyplot as plt
         from matplotlib.ticker import FuncFormatter
@@ -297,7 +298,7 @@ def videoinfo_ochra(ochra, index):
         import warnings
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            ax.set_yticklabels(['Surgery\nTimeline'], color=cover_color)
+            ax.set_yticklabels([f'Surgery\nTimeline\nCase {index}'], color=cover_color)
         
         # Embellishing plot
         fig.patch.set_facecolor(bg_color)
@@ -310,11 +311,17 @@ def videoinfo_ochra(ochra, index):
         plt.show()
 
     # Producing the plot using the function defined earlier
-    # plot_timeLine(name, results, end)
+    # plot_timeLine(name, results, end, index)
 
-    # Checking how many events are in the plot
-    number_events = len(name)
-    print(f'Case {index}: {number_events}, ', end='')
+    # Checking how many phases are in the plot
+    # number_events = len(name)
+    # print(f'Case {index}: ', end='')
+    # print(f'{number_events}, ', end='')
+
+    # Checking which phases are in the plot
+    # print(f'Case {index}: ', end='')
+    # for n in range(0, len(name)):
+    #     print(f"'{name[n]}', ", end='')
     
     return ochra        # Giving 'ochra' to the function's output
 """¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨"""
