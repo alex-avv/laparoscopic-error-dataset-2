@@ -237,7 +237,7 @@ def videoinfo_ochra(ochra, index):
         import matplotlib.pyplot as plt
         from matplotlib.ticker import FuncFormatter
         
-        # This function is to transform x-axis to time format
+        # This function is to transform x-axis to time format (https://stackoverflow.com/questions/48294332/plot-datetime-timedelta-using-matplotlib-and-python)
         def format_func(x, pos):
             hours = int(x//3600)
             minutes = int((x%3600)//60)
@@ -250,7 +250,7 @@ def videoinfo_ochra(ochra, index):
         bg_color = 'white'     #'xkcd:dark gray'
         cover_color = 'black'
         
-        # Plotting the times
+        # Plotting the times (code from: https://matplotlib.org/3.1.1/gallery/lines_bars_and_markers/horizontal_barchart_distribution.html#sphx-glr-gallery-lines-bars-and-markers-horizontal-barchart-distribution-py)
         labels = list(results.keys())
         data = np.array(list(results.values()))
         data_cum = data.cumsum(axis=1)
@@ -258,7 +258,6 @@ def videoinfo_ochra(ochra, index):
         #
         fig, ax = plt.subplots(figsize=(5, 1), dpi=1000)     # Defining figure size and resolution
         #
-        check = 0
         for i, (colname, color) in enumerate(zip(name, category_colors)):
             widths = data[:, i]
             starts = data_cum[:, i] - widths
@@ -281,7 +280,7 @@ def videoinfo_ochra(ochra, index):
                     ax.text(x, y, name[i], ha='center', va='center', color=text_color, fontsize='medium')
             plt.autoscale(enable=True, axis='x', tight=True)      # Tightening the axes of the graph
                 
-        # Ordering legend labels from left to right
+        # Ordering legend labels from left to right (https://stackoverflow.com/questions/10101141/matplotlib-legend-add-items-across-columns-instead-of-down)
         import itertools
         def flip(items, ncol):
             return itertools.chain(*[items[i::ncol] for i in range(ncol)])
