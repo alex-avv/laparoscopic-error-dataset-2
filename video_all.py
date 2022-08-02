@@ -62,7 +62,6 @@ def extract_video(folder_name):
     # Returning to '2D3D VIDEOS' folder (i.e. one level up)
     sftp.chdir('../')
     
-    clear()
     return video        # Giving 'video' to the function's output
 """¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨"""
 
