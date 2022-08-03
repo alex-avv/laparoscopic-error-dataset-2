@@ -11,7 +11,7 @@ import numpy as np
 
 # Moving to directory where anotations are stored
 os.chdir("C:/Users/aleja/OneDrive - University College London/Griffin Institute collaboration/Grifin_annotations/2D3D VIDEOS")
-#os.chdir("C:/Users/Sera Bostan/University College London/Mazomenos, Evangelos - Griffin Institute collaboration/Grifin_annotations/2D3D VIDEOS")
+# os.chdir("C:/Users/Sera Bostan/University College London/Mazomenos, Evangelos - Griffin Institute collaboration/Grifin_annotations/2D3D VIDEOS")
 """¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨"""
 
 
@@ -380,7 +380,7 @@ def test_ochra(ochra):
     
     # """ Checking 'Label' column """
     # col_label = 2
-    # # Confirming all instances in the column are either 'START', 'ERR', 'N.P.' or 'DESC'
+    # # Confirming all instances in the column are either 'START', 'ERR', 'N.P.', 'N.R.' or 'DESC'
     # for row in range(0,len(ochra)):
     #     if pd.isna(ochra[row, col_label]) == False:
     #         if (ochra[row, col_label] in ['START','ERR','N.P.','N.R.','DESC']) == False:       # If an instance is not in the available options, test fails
