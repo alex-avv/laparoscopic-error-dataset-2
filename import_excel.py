@@ -13,7 +13,7 @@ import numpy as np
 
 # Moving to directory where anotations are stored
 os.chdir("C:/Users/aleja/OneDrive - University College London/Griffin Institute collaboration/Grifin_annotations/2D3D VIDEOS")
-#os.chdir("C:/Users/Sera Bostan/University College London/Mazomenos, Evangelos - Griffin Institute collaboration/Grifin_annotations/2D3D VIDEOS")
+# os.chdir("C:/Users/Sera Bostan/University College London/Mazomenos, Evangelos - Griffin Institute collaboration/Grifin_annotations/2D3D VIDEOS")
 
 # Choosing file to work with later
 index = 1
@@ -318,14 +318,14 @@ def plot_timeLine(name, results, end, index):
 plot_timeLine(name, results, end, index)
 
 # Checking how many phases are in the plot
-number_events = len(name)
-print(f'Case {index}: ', end='')
-print(f'{number_events}, ', end='')
+# number_events = len(name)
+# print(f'Case {index}: ', end='')
+# print(f'{number_events}, ', end='')
 
 # Checking which phases are in the plot
-print(f'Case {index}: ', end='')
-for n in range(0, len(name)):
-    print(f"'{name[n]}', ", end='')
+# print(f'Case {index}: ', end='')
+# for n in range(0, len(name)):
+#     print(f"'{name[n]}', ", end='')
 
 ''' return ochra        # Giving 'ochra' to the function's output '''
 

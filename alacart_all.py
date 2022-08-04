@@ -86,10 +86,12 @@ def extract_ochra(analysis_xls):
 """¨¨¨ Labelling each annotation as START, ERR (Error), N.P. (Not Performed), N.R. (Not recorded) or DESC (Description) ¨¨¨"""
 def label_ochra(ochra):
     # Each event is given one of these 5 descriptive labels for easier identification later on 
-    start = ['x']      # 'start' is used to detect if an instance has the word 'Start' (or similar) later on. Defining variable
-    notperformed = ['y']       # 'notperformed' is used to detect if an instance has the words 'Not performed' (or similar) later on. Defining variable
-    notrecorded = ['z']      # 'notrecorded' is used to detect if an instance has the words 'Not recorded' (or similar) later on. Defining variable
-    description = ['w'
+    start = ['start','Start','START']      # 'start' is used to detect if an instance has the word 'Start' (or similar) later on. Defining variable
+    notperformed = ['not performed','Not performed','N.P.']       # 'notperformed' is used to detect if an instance has the words 'Not performed' (or similar) later on. Defining variable
+    notrecorded = ['not recorded','Not recorded',
+                   'not on video','Not on video',
+                   'not shown','Not shown']      # 'notrecorded' is used to detect if an instance has the words 'Not recorded' (or similar) later on. Defining variable
+    description = ['File states first 30 mins were lost due to tech issue'
                    ]       # 'description' is used to detect if an instance has one of the descriptive phrases included later on. Defining variable
 
     # This function checks if the words in a word array (e.g. 'np' or 'start') can be found on a selected instance
@@ -344,27 +346,19 @@ def test_ochra(ochra):
 
     """ Checking 'Task Area' column) """
     col_taskarea = 0
-    # Confirming all instances in the column are between 1-10
+    # Confirming all instances in the column are between 6-10
     for row in range(0,len(ochra)):
         if pd.isna(ochra[row, col_taskarea]) == False:
-            if (ochra[row, col_taskarea] in [1,2,3,4,5,6,7,8,9,10]) == False:       # If an instance is not in the available options, test fails
+            if (ochra[row, col_taskarea] in [6,7,8,9,10]) == False:       # If an instance is not in the available options, test fails
                 check_failed = True
                 break
         elif pd.isna(ochra[row, col_taskarea]) == True:
             check_failed = True
             break
         
-    # Checking the column has at least one of the instances in 2-10
+    # Checking the column has at least one of the instances in 6-10
     if check_failed == False:
-        if (2 in ochra[:, col_taskarea]) == False:      # If the column doesn't have a 2 in it, test fails. Likewise for 3-10
-            check_failed = True
-        elif (3 in ochra[:, col_taskarea]) == False:
-            check_failed = True
-        elif (4 in ochra[:, col_taskarea]) == False:
-            check_failed = True
-        elif (5 in ochra[:, col_taskarea]) == False:
-            check_failed = True
-        elif (6 in ochra[:, col_taskarea]) == False:
+        if (6 in ochra[:, col_taskarea]) == False:      # If the column doesn't have a 6 in it, test fails. Likewise for 7-10
             check_failed = True
         elif (7 in ochra[:, col_taskarea]) == False:
             check_failed = True
@@ -377,10 +371,10 @@ def test_ochra(ochra):
             
     """ Checking 'Subtask Area' column """
     col_subtaskarea = 1
-    # Confirming all instances in the column are between a-d
+    # Confirming all instances in the column are between a-c
     for row in range(0,len(ochra)):
         if pd.isna(ochra[row, col_subtaskarea]) == False:
-            if (ochra[row, col_subtaskarea] in ['a','b','c','d']) == False:       # If an instance is not in the available options, test fails
+            if (ochra[row, col_subtaskarea] in ['a','b','c']) == False:       # If an instance is not in the available options, test fails
                 check_failed = True
                 break
     
@@ -437,14 +431,17 @@ def test_ochra(ochra):
 # 1st part of measuring time of execution of the code
 start_time = time.time()
 
+iALACART = np.array(os.listdir(), dtype=object)      # 'iALACART' has the names of all the Excel files files with anotations in the 'ALACART' folder
+
 missing_files = ''      # 'missing_files' is used to store the cases whos' anotations are missing later on. Resetting variable
 failed_files = ''       # 'failed_files' is used to store the cases whos' OCHRA data extraction is unsuccessful later on. Resetting variable
 calcerror_files = ''    # 'calcerror_files' is used to store the cases where trying to do calculations on the OCHRA data gives errors later on. Resetting variable
 
 # Looping through all of the cases' spreadsheets in the Griffin dataset 
-for index in range(1,91):
+for n in range(0,len(iALACART)-2):
     analysis_xls = None
-    file_name = f'Case {index}.xls'        # 'file_name' is used for the name of the file to be imported later on. Setting variable
+    file_name = iALACART[n]        # 'file_name' is used for the name of the file to be imported later on. Setting variable
+    index = file_name.replace(".xls","")
     
     try:        # Importing Excel file, particularly the 'Analysis' sheet within the file
         analysis_xls = pd.read_excel(file_name, sheet_name='Analysis').values
@@ -468,10 +465,10 @@ for index in range(1,91):
             check_failed = True
     
     if (check_missing == False) and (check_failed == False):
-        try:
+        try:      # Adding the global start times to the events in OCHRA using our preset function defined earlier
             ochra = videoinfo_ochra(ochra, index)
             check_calcerror = False
-        except:
+        except:      # If it is not possible to successfully add the global start times, the case number is recorded
             calcerror_files = calcerror_files + f', {index}'
             check_calcerror = True
 
@@ -481,4 +478,3 @@ for index in range(1,91):
 
 # 2nd part of measuring time of execution of the code
 # print('Executed in %.2f seconds.' % (time.time() - start_time))
-

@@ -79,7 +79,7 @@ def extract_ochra(analysis_xls):
 """¨¨¨ Labelling each annotation as START, ERR (Error), N.P. (Not Performed), N.R. (Not recorded) or DESC (Description) ¨¨¨"""
 def label_ochra(ochra):
     # Each event is given one of these 5 descriptive labels for easier identification later on 
-    start = ['start', 'Start','START']      # 'start' is used to detect if an instance has the word 'Start' (or similar) later on. Defining variable
+    start = ['start','Start','START']      # 'start' is used to detect if an instance has the word 'Start' (or similar) later on. Defining variable
     notperformed = ['not performed','Not performed','not done','Not done','N.P.']       # 'notperformed' is used to detect if an instance has the words 'Not performed' (or similar) later on. Defining variable
     notrecorded = ['not on video']      # 'notrecorded' is used to detect if an instance has the words 'Not recorded' (or similar) later on. Defining variable
     description = ['Steps mixed together in this case.  Mostly file 3E',
@@ -462,10 +462,10 @@ for index in range(1,91):
             check_failed = True
     
     if (check_missing == False) and (check_failed == False):
-        try:
+        try:      # Adding the global start times to the events in OCHRA using our preset function defined earlier
             ochra = videoinfo_ochra(ochra, index)
             check_calcerror = False
-        except:
+        except:      # If it is not possible to successfully add the global start times, the case number is recorded
             calcerror_files = calcerror_files + f', {index}'
             check_calcerror = True
 
@@ -475,4 +475,3 @@ for index in range(1,91):
 
 # 2nd part of measuring time of execution of the code
 # print('Executed in %.2f seconds.' % (time.time() - start_time))
-
