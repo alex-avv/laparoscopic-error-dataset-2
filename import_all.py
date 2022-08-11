@@ -82,8 +82,14 @@ def label_ochra(ochra):
     start = ['start','Start','START']      # 'start' is used to detect if an instance has the word 'Start' (or similar) later on. Defining variable
     notperformed = ['not performed','Not performed','not done','Not done','N.P.']       # 'notperformed' is used to detect if an instance has the words 'Not performed' (or similar) later on. Defining variable
     notrecorded = ['not on video']      # 'notrecorded' is used to detect if an instance has the words 'Not recorded' (or similar) later on. Defining variable
-    description = ['Steps mixed together in this case.  Mostly file 3E',
-                   'Task steps mixed in throughout this case'
+    description = ['End of recording',
+                   'On table flexi being performed to confirm height and make plan. Clip marked.',
+                   '***Good for teaching. Right duplex ureter',
+                   'Steps mixed together in this case.  Mostly file 3E',
+                   'Task steps mixed in throughout this case',
+                   '*****Note made of two suture oversew on conduit ?serosal tear. Must have occurred extra-corporeal***********',
+                   'Appears to be simultaneous right hemicoloectomy',
+                   '?peritoneal mets anteriorly'
                    ]       # 'description' is used to detect if an instance has one of the descriptive phrases included later on. Defining variable
 
     # This function checks if the words in a word array (e.g. 'np' or 'start') can be found on a selected instance
@@ -97,14 +103,7 @@ def label_ochra(ochra):
 
     # Adding an empty column to hold the labels
     ochra = np.insert(ochra, 2, np.full(len(ochra), np.nan), 1)
-
-    # There are some events where the 'Further info' is noted but the rest of columns of the OCHRA information are empty. Assuming these are just descriptions and adding the DESC label
-    for row in range(0,len(ochra)):         # Looping through all rows in 'ochra'
-        check_filled = False in pd.isna(ochra[row, 0:11])    # Checking if instances in the row [from 'Task Area' column to 'Location (pelvic)' column] are empty or not
-        # If all instances in the row are empty, a DESC label is given
-        if (pd.isna(ochra[row, 11]) == False) and (check_filled == False):
-            ochra[row, 2] = 'DESC'
-
+    
     # There are some events where the 'Task Area' and 'Subtask Area' are noted but the rest of columns of the OCHRA information are empty. Assuming these cases were not performed and adding the N.P. label
     for row in range(0,len(ochra)):         # Looping through all rows in 'ochra'
         check_filled = False in pd.isna(ochra[row, 2:12])    # Checking if instances in the row [from 'Label' column to 'Further info' column] are empty or not
@@ -120,13 +119,6 @@ def label_ochra(ochra):
         if ((pd.isna(ochra[row, 0]) == False) or (pd.isna(ochra[row, 1]) == False)) and (pd.isna(ochra[row, 3]) == False) and (pd.isna(ochra[row, 4]) == False) and (check_filled == False):
             ochra[row, 2] = 'START'
             ochra[row, 11] = 'ASSUMED START'       # Noting in 'Further info' this event was assumed to be a start event (for clarity)
-
-    # There are some events where the 'Task Area', 'Subtask Area', 'Timecode', 'Subfile' and 'Further info' are noted but the rest of columns of the OCHRA information are empty. Assuming these are just descriptions and adding the DESC label
-    for row in range(0,len(ochra)):         # Looping through all rows in 'ochra'
-        check_filled = False in pd.isna(ochra[row, 5:11])    # Checking if instances in the row [from 'Tool-tissue Errors column to 'Location (pelvic)' column] are empty or not
-        # If all instances in the row are empty, a DESC label is given
-        if (pd.isna(ochra[row, 3]) == False) and (pd.isna(ochra[row, 4]) == False) and (pd.isna(ochra[row, 11]) == False) and (check_filled == False) and (check_words(start, ochra[row, 11]) == False) and (check_words(notperformed, ochra[row, 11]) == False):
-            ochra[row, 2] = 'DESC'
 
     # Marking the rest of events
     for row in range(0,len(ochra)):     # Looping through all rows in 'ochra'
@@ -163,14 +155,14 @@ def videoinfo_ochra(ochra, index):
     os.chdir('Video durations')
 
     try:
-         # Loading video data for the case and removing non-essential information
-         video = np.load(f'{index}.npy', allow_pickle=True)      # 'video' will contain the video information. Setting variable 
-         # Calculating the end time of the last video for later on
-         end = video[len(video) - 1, 2] + video[len(video) - 1, 3]
-         # Removing 'Original name' and 'Duration' columns, keeping 'Simple form name' and 'Global start time' columns
-         video = np.stack((video[:, 1], video[:, 3]), axis=1)
+        # Loading video data for the case and removing non-essential information
+        video = np.load(f'{index}.npy', allow_pickle=True)      # 'video' will contain the video information. Setting variable 
+        # Calculating the end time of the last video for later on
+        end = video[len(video) - 1, 2] + video[len(video) - 1, 3]
+        # Removing 'Original name' and 'Duration' columns, keeping 'Simple form name' and 'Global start time' columns
+        video = np.stack((video[:, 1], video[:, 3]), axis=1)
     except:
-         pass
+        pass
      
     # Returning to original working folder (i.e. one level up)
     os.chdir('../')
@@ -378,17 +370,17 @@ def test_ochra(ochra):
                 check_failed = True
                 break
     
-    # """ Checking 'Label' column """
-    # col_label = 2
-    # # Confirming all instances in the column are either 'START', 'ERR', 'N.P.', 'N.R.' or 'DESC'
-    # for row in range(0,len(ochra)):
-    #     if pd.isna(ochra[row, col_label]) == False:
-    #         if (ochra[row, col_label] in ['START','ERR','N.P.','N.R.','DESC']) == False:       # If an instance is not in the available options, test fails
-    #             check_failed = True
-    #             break
-    #     elif pd.isna(ochra[row, col_label]) == True:
-    #         check_failed = True
-    #         break
+    """ Checking 'Label' column """
+    col_label = 2
+    # Confirming all instances in the column are either 'START', 'ERR', 'N.P.', 'N.R.' or 'DESC'
+    for row in range(0,len(ochra)):
+        if pd.isna(ochra[row, col_label]) == False:
+            if (ochra[row, col_label] in ['START','ERR','N.P.','N.R.','DESC']) == False:       # If an instance is not in the available options, test fails
+                check_failed = True
+                break
+        elif pd.isna(ochra[row, col_label]) == True:
+            check_failed = True
+            break
             
     # """ Checking 'Subfile' column """
     # col_subfile = 4

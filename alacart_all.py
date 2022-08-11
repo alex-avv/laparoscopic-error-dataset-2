@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Aug  1 15:56:36 2022
-
-@author: Sera Bostan
-"""
-
 %reset -f
 """¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨"""
 """¨¨¨ Setting up environment & files' path ¨¨¨"""
@@ -106,13 +99,6 @@ def label_ochra(ochra):
     # Adding an empty column to hold the labels
     ochra = np.insert(ochra, 2, np.full(len(ochra), np.nan), 1)
 
-    # There are some events where the 'Further info' is noted but the rest of columns of the OCHRA information are empty. Assuming these are just descriptions and adding the DESC label
-    for row in range(0,len(ochra)):         # Looping through all rows in 'ochra'
-        check_filled = False in pd.isna(ochra[row, 0:11])    # Checking if instances in the row [from 'Task Area' column to 'Location (pelvic)' column] are empty or not
-        # If all instances in the row are empty, a DESC label is given
-        if (pd.isna(ochra[row, 11]) == False) and (check_filled == False):
-            ochra[row, 2] = 'DESC'
-
     # There are some events where the 'Task Area' and 'Subtask Area' are noted but the rest of columns of the OCHRA information are empty. Assuming these cases were not performed and adding the N.P. label
     for row in range(0,len(ochra)):         # Looping through all rows in 'ochra'
         check_filled = False in pd.isna(ochra[row, 2:12])    # Checking if instances in the row [from 'Label' column to 'Further info' column] are empty or not
@@ -128,13 +114,6 @@ def label_ochra(ochra):
         if ((pd.isna(ochra[row, 0]) == False) or (pd.isna(ochra[row, 1]) == False)) and (pd.isna(ochra[row, 3]) == False) and (pd.isna(ochra[row, 4]) == False) and (check_filled == False):
             ochra[row, 2] = 'START'
             ochra[row, 11] = 'ASSUMED START'       # Noting in 'Further info' this event was assumed to be a start event (for clarity)
-
-    # There are some events where the 'Task Area', 'Subtask Area', 'Timecode', 'Subfile' and 'Further info' are noted but the rest of columns of the OCHRA information are empty. Assuming these are just descriptions and adding the DESC label
-    for row in range(0,len(ochra)):         # Looping through all rows in 'ochra'
-        check_filled = False in pd.isna(ochra[row, 5:11])    # Checking if instances in the row [from 'Tool-tissue Errors column to 'Location (pelvic)' column] are empty or not
-        # If all instances in the row are empty, a DESC label is given
-        if (pd.isna(ochra[row, 3]) == False) and (pd.isna(ochra[row, 4]) == False) and (pd.isna(ochra[row, 11]) == False) and (check_filled == False) and (check_words(start, ochra[row, 11]) == False) and (check_words(notperformed, ochra[row, 11]) == False):
-            ochra[row, 2] = 'DESC'
 
     # Marking the rest of events
     for row in range(0,len(ochra)):     # Looping through all rows in 'ochra'
@@ -390,37 +369,37 @@ def test_ochra(ochra):
             check_failed = True
             break
             
-    """ Checking 'Subfile' column """
-    col_subfile = 4
-    # Confirming all instances in the column are between 1-11 (1st character in most cases) & A-Z (2nd charecter in most cases)
-    for row in range(0,len(ochra)):
-        if pd.isna(ochra[row, col_subfile]) == False:
-            if len(ochra[row, col_subfile]) == 1:         # Testing when instance only has 1 character (e.g. '1')
-                if (ochra[row, col_subfile] in file) == False:       # If an instance is not in the available options, test fails
-                    check_failed = True
-                    break
-            elif len(ochra[row, col_subfile]) == 2:       # Testing when instance has 2 characters (e.g. '1B' or '10')
-                if ((ochra[row, col_subfile][0] in file) == False) or ((ochra[row, col_subfile][1] in subfile) == False):       # If an instance is not in the available options, test fails
-                    if (ochra[row, col_subfile][0:2] in file) == False:
-                        check_failed = True
-                        break
-            elif len(ochra[row, col_subfile]) == 3:       # Testing when instance has 3 characters (e.g. '10B or 1AB')
-                if ((ochra[row, col_subfile][0:2] in file) == False) or ((ochra[row, col_subfile][2] in subfile) == False):       # If an instance is not in the available options, test fails
-                    if ((ochra[row, col_subfile][0] in file) == False) or ((ochra[row, col_subfile][1:3] in subfile) == False):
-                        check_failed = True
-                        break    
-            else:       # Any other options
-                check_failed = True
-                break
+    # """ Checking 'Subfile' column """
+    # col_subfile = 4
+    # # Confirming all instances in the column are between 1-11 (1st character in most cases) & A-Z (2nd charecter in most cases)
+    # for row in range(0,len(ochra)):
+    #     if pd.isna(ochra[row, col_subfile]) == False:
+    #         if len(ochra[row, col_subfile]) == 1:         # Testing when instance only has 1 character (e.g. '1')
+    #             if (ochra[row, col_subfile] in file) == False:       # If an instance is not in the available options, test fails
+    #                 check_failed = True
+    #                 break
+    #         elif len(ochra[row, col_subfile]) == 2:       # Testing when instance has 2 characters (e.g. '1B' or '10')
+    #             if ((ochra[row, col_subfile][0] in file) == False) or ((ochra[row, col_subfile][1] in subfile) == False):       # If an instance is not in the available options, test fails
+    #                 if (ochra[row, col_subfile][0:2] in file) == False:
+    #                     check_failed = True
+    #                     break
+    #         elif len(ochra[row, col_subfile]) == 3:       # Testing when instance has 3 characters (e.g. '10B or 1AB')
+    #             if ((ochra[row, col_subfile][0:2] in file) == False) or ((ochra[row, col_subfile][2] in subfile) == False):       # If an instance is not in the available options, test fails
+    #                 if ((ochra[row, col_subfile][0] in file) == False) or ((ochra[row, col_subfile][1:3] in subfile) == False):
+    #                     check_failed = True
+    #                     break    
+    #         else:       # Any other options
+    #             check_failed = True
+    #             break
             
-    """ Checking 'Further info' column """
-    col_furtherinfo = 11
-    # Checking instances in the column are equal to the chosen word(s)
-    for row in range(0,len(ochra)):
-        if pd.isna(ochra[row, col_furtherinfo]) == False:
-            if ochra[row, col_furtherinfo] == 'ASSUMED START':       # If an instance is not in the available options, test fails
-                check_failed = True
-                break
+    # """ Checking 'Further info' column """
+    # col_furtherinfo = 11
+    # # Checking instances in the column are equal to the chosen word(s)
+    # for row in range(0,len(ochra)):
+    #     if pd.isna(ochra[row, col_furtherinfo]) == False:
+    #         if ochra[row, col_furtherinfo] == 'ASSUMED START':       # If an instance is not in the available options, test fails
+    #             check_failed = True
+    #             break
             
     return check_failed      # Returning the value of 'check_failed' to the function's output
 """¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨"""
