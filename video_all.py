@@ -11,8 +11,8 @@ import os
 
 # Defining credentials to connect to the tails.cs.ucl.ac.uk server
 Hostname = "tails.cs.ucl.ac.uk"
-Username = "aavilaca"
-Password = "AAT49ata"
+Username = "sbostan"
+Password = "TdT28ete"
 
 # Disabling host key requirement (to be able to access the server) (https://stackoverflow.com/questions/38939454/verify-host-key-with-pysftp)
 cnopts = pysftp.CnOpts()
@@ -20,7 +20,7 @@ cnopts.hostkeys = None
 
 # Connecting to the server and moving to Griffin_dataset directory
 sftp = pysftp.Connection(host=Hostname, username=Username, password=Password, cnopts=cnopts)
-sftp.chdir("/cs/research/medic/surgicalvision/srv6/Griffin_dataset/2D3D VIDEOS")
+sftp.chdir("/cs/research/medic/surgicalvision/srv6/Griffin_dataset/ALACART")
 """¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨"""
 
 
@@ -71,7 +71,7 @@ def extract_video(folder_name):
 i2D3D = np.array(sftp.listdir(), dtype=object)      # 'i2D3D' has the names of all of the files (folders) in the '2D3D VIDEOS' folder (in the server)
 
 # Changing the system working directory to save the video information in the computer on
-os.chdir("C:/Users/aleja/OneDrive - University College London/Griffin Institute collaboration/Grifin_annotations/2D3D VIDEOS/Video durations")
+os.chdir("C:/Users/Sera Bostan/OneDrive - University College London/Griffin Institute collaboration/Grifin_annotations/2D3D VIDEOS/Video durations")
 
 # Looping through all of the folders in '2D3D VIDEOS', extracting the relevant video data and saving it as .npy files
 for index in range(0,len(i2D3D)):
