@@ -79,12 +79,17 @@ def extract_ochra(analysis_xls):
 """¨¨¨ Labelling each annotation as START, ERR (Error), N.P. (Not Performed), N.R. (Not recorded) or DESC (Description) ¨¨¨"""
 def label_ochra(ochra):
     # Each event is given one of these 5 descriptive labels for easier identification later on 
-    start = ['start','Start','START']      # 'start' is used to detect if an instance has the word 'Start' (or similar) later on. Defining variable
+    start = ['start ','Start ','START',
+             'posterior TME seems well underway at start',
+             'Video starts with proximal TME posterior plane already underway',
+             'Starts. TME already well underway partially left side',
+             '6a starts in part 2'
+             ]      # 'start' is used to detect if an instance has the word 'Start' (or similar) later on. Defining variable
     notperformed = ['not performed','Not performed','N.P.']       # 'notperformed' is used to detect if an instance has the words 'Not performed' (or similar) later on. Defining variable
     notrecorded = ['not recorded','Not recorded',
                    'not on video','Not on video',
                    'not shown','Not shown']      # 'notrecorded' is used to detect if an instance has the words 'Not recorded' (or similar) later on. Defining variable
-    description = ['File states first 30 mins were lost due to tech issue'
+    description = ['Case appears to be converted at this point'
                    ]       # 'description' is used to detect if an instance has one of the descriptive phrases included later on. Defining variable
 
     # This function checks if the words in a word array (e.g. 'np' or 'start') can be found on a selected instance
@@ -443,13 +448,13 @@ for n in range(0,len(iALACART)-2):
             failed_files = failed_files + f', {index}'
             check_failed = True
     
-    if (check_missing == False) and (check_failed == False):
-        try:      # Adding the global start times to the events in OCHRA using our preset function defined earlier
-            ochra = videoinfo_ochra(ochra, index)
-            check_calcerror = False
-        except:      # If it is not possible to successfully add the global start times, the case number is recorded
-            calcerror_files = calcerror_files + f', {index}'
-            check_calcerror = True
+    # if (check_missing == False) and (check_failed == False):
+    #     try:      # Adding the global start times to the events in OCHRA using our preset function defined earlier
+    #         ochra = videoinfo_ochra(ochra, index)
+    #         check_calcerror = False
+    #     except:      # If it is not possible to successfully add the global start times, the case number is recorded
+    #         calcerror_files = calcerror_files + f', {index}'
+    #         check_calcerror = True
 
 # Printing on screen the files that are missing and with failed OCHRA data extraction
 # print(f'\nCases {missing_files[2:]} are missing')
