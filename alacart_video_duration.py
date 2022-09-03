@@ -64,13 +64,13 @@ for row in range(len(video)):
     
     # Modifying the 'Duration' column
 print(f'~ {video[row, 1]}', end='')
-    start_time = time.time()
-    current_video = sftp.open(video[row, 0])
-    duration_ms = MediaInfo.parse(current_video).tracks[0].duration
-    duration_s = duration_ms / 1000
-    dur = datetime.timedelta(seconds=duration_s)
+start_time = time.time()
+current_video = sftp.open(video[row, 0])
+duration_ms = MediaInfo.parse(current_video).tracks[0].duration
+duration_s = duration_ms / 1000
+dur = datetime.timedelta(seconds=duration_s)
 print(', %.2f seconds' % (time.time() - start_time))
-    video[row, 2] = dur
+video[row, 2] = dur
     
 # Modifying the 'Global start time' column
 video[0, 3] = datetime.timedelta(seconds=0)     # Giving a start time of 0:00:00 to the first video in 'video'
