@@ -5,8 +5,7 @@ import pysftp
 from pymediainfo import MediaInfo
 import datetime
 import numpy as np
-import  os
-import glob
+
 
 # Defining credentials to connect to the tails.cs.ucl.ac.uk server
 Hostname = "tails.cs.ucl.ac.uk"
