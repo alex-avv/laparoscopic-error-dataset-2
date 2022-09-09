@@ -79,11 +79,7 @@ def extract_ochra(analysis_xls):
 """¨¨¨ Labelling each annotation as START, ERR (Error), N.P. (Not Performed), N.R. (Not recorded) or DESC (Description) ¨¨¨"""
 def label_ochra(ochra):
     # Each event is given one of these 5 descriptive labels for easier identification later on 
-    start = ['start ','Start ','START',
-             'posterior TME seems well underway at start',
-             'Video starts with proximal TME posterior plane already underway',
-             'Starts. TME already well underway partially left side',
-             '6a starts in part 2'
+    start = ['start ','Start ','START'
              ]      # 'start' is used to detect if an instance has the word 'Start' (or similar) later on. Defining variable
     notperformed = ['not performed','Not performed','N.P.']       # 'notperformed' is used to detect if an instance has the words 'Not performed' (or similar) later on. Defining variable
     notrecorded = ['not recorded','Not recorded',
@@ -158,9 +154,9 @@ def videoinfo_ochra(ochra, index):
          # Loading video data for the case and removing non-essential information
          video = np.load(f'{index}.npy', allow_pickle=True)      # 'video' will contain the video information. Setting variable 
          # Calculating the end time of the last video for later on
-         end = video[len(video) - 1, 2] + video[len(video) - 1, 3]
-         # Removing 'Original name' and 'Duration' columns, keeping 'Simple form name' and 'Global start time' columns
-         video = np.stack((video[:, 1], video[:, 3]), axis=1)
+         end = video[len(video) -1, 3] + video[len(video) -1, 4]
+         # Removing 'Path', 'Original name' and 'Duration' columns, keeping 'Simple form name' and 'Global start time' columns
+         video = np.stack((video[:, 2], video[:, 4]), axis=1)
     except:
          pass
      
@@ -188,7 +184,7 @@ def videoinfo_ochra(ochra, index):
 
     """Displaying the new GST info graphically """
     # Before plotting the graph, the duration of the events has be calculated. This will be done by subtracting the global end time (GET) minus the global start time (GST) for each event
-    event_timeinfo = np.empty((0,2))      # 'event_timeinfo' will hold the GSTs and GETs of certain events later on. Defining variable 
+    event_timeinfo = np.empty((0,2), dtype=object)      # 'event_timeinfo' will hold the GSTs and GETs of certain events later on. Defining variable 
 
     # In this case, only the events which have the 'Task' instance filled and a 'START' label will be added to the plot
     for row in range(0, len(ochra)):         # Looping through all rows in 'ochra'
@@ -198,7 +194,16 @@ def videoinfo_ochra(ochra, index):
                 event_timeinfo = np.vstack((event_timeinfo, np.array((str(ochra[row, 0]), ochra[row, 4]))))
             else:
                 event_timeinfo = np.vstack((event_timeinfo, np.array((str(ochra[row, 0]) + ochra[row, 1], ochra[row, 4]))))
-               
+
+    # If there is no event to map or if the first event's GST is not zero, adding an empty event so the timeline plots correctly later on
+    import datetime      # 'datetime' library is needed later on
+    if len(event_timeinfo) == 0:
+        event_timeinfo = np.vstack((event_timeinfo, np.full((1,2), np.nan)))    # Adding an empty row to hold the empty event    
+        event_timeinfo[len(event_timeinfo) -1,:] = np.stack(('',datetime.timedelta(seconds=0)))      # Populating the empty event
+    elif event_timeinfo[0, 1] != datetime.timedelta(seconds=0):
+        event_timeinfo = np.vstack((event_timeinfo, np.full((1,2), np.nan)))    # Adding an empty row to hold the empty event    
+        event_timeinfo[len(event_timeinfo) -1,:] = np.stack(('',datetime.timedelta(seconds=0)))      # Populating the empty event
+        
     # Sorting the events in chronological order 
     event_timeinfo = event_timeinfo[event_timeinfo[:,1].argsort()]
 
@@ -247,6 +252,9 @@ def videoinfo_ochra(ochra, index):
         data = np.array(list(results.values()))
         data_cum = data.cumsum(axis=1)
         category_colors = plt.get_cmap('tab20b')(np.linspace(0, 1, len(name)))
+        if len(name) > 0:       # If the first event is an empty event, plotting an invisible bar
+            if name[0] == '':       
+                category_colors = np.vstack((np.array((1,1,1,0)), category_colors[0:len(category_colors) -1]))
         #
         fig, ax = plt.subplots(figsize=(5, 1), dpi=1000)     # Defining figure size and resolution
         #
@@ -304,6 +312,11 @@ def videoinfo_ochra(ochra, index):
     # Producing the plot using the function defined earlier
     # plot_timeLine(name, results, end, index)
 
+    # Removing the first event in 'name' if it is an empty event
+    if len(name) > 0:
+        if name[0] == '':
+            name = name[1:len(name)]
+        
     # Checking how many phases are in the plot
     # number_events = len(name)
     # print(f'Case {index}: ', end='')
@@ -374,28 +387,9 @@ def test_ochra(ochra):
             check_failed = True
             break
             
-    # """ Checking 'Subfile' column """
-    # col_subfile = 4
-    # # Confirming all instances in the column are between 1-11 (1st character in most cases) & A-Z (2nd charecter in most cases)
-    # for row in range(0,len(ochra)):
-    #     if pd.isna(ochra[row, col_subfile]) == False:
-    #         if len(ochra[row, col_subfile]) == 1:         # Testing when instance only has 1 character (e.g. '1')
-    #             if (ochra[row, col_subfile] in file) == False:       # If an instance is not in the available options, test fails
-    #                 check_failed = True
-    #                 break
-    #         elif len(ochra[row, col_subfile]) == 2:       # Testing when instance has 2 characters (e.g. '1B' or '10')
-    #             if ((ochra[row, col_subfile][0] in file) == False) or ((ochra[row, col_subfile][1] in subfile) == False):       # If an instance is not in the available options, test fails
-    #                 if (ochra[row, col_subfile][0:2] in file) == False:
-    #                     check_failed = True
-    #                     break
-    #         elif len(ochra[row, col_subfile]) == 3:       # Testing when instance has 3 characters (e.g. '10B or 1AB')
-    #             if ((ochra[row, col_subfile][0:2] in file) == False) or ((ochra[row, col_subfile][2] in subfile) == False):       # If an instance is not in the available options, test fails
-    #                 if ((ochra[row, col_subfile][0] in file) == False) or ((ochra[row, col_subfile][1:3] in subfile) == False):
-    #                     check_failed = True
-    #                     break    
-    #         else:       # Any other options
-    #             check_failed = True
-    #             break
+    """ Checking 'Subfile' column """
+    col_subfile = 4
+    # Not necessary for ALACART as videos are named in different ways/formats
             
     # """ Checking 'Further info' column """
     # col_furtherinfo = 11
@@ -422,7 +416,7 @@ failed_files = ''       # 'failed_files' is used to store the cases whos' OCHRA 
 calcerror_files = ''    # 'calcerror_files' is used to store the cases where trying to do calculations on the OCHRA data gives errors later on. Resetting variable
 
 # Looping through all of the cases' spreadsheets in the Griffin dataset 
-for n in range(0,len(iALACART)-2):
+for n in range(0,len(iALACART)-3):
     analysis_xls = None
     file_name = iALACART[n]        # 'file_name' is used for the name of the file to be imported later on. Setting variable
     index = file_name.replace(".xls","")
@@ -448,13 +442,13 @@ for n in range(0,len(iALACART)-2):
             failed_files = failed_files + f', {index}'
             check_failed = True
     
-    # if (check_missing == False) and (check_failed == False):
-    #     try:      # Adding the global start times to the events in OCHRA using our preset function defined earlier
-    #         ochra = videoinfo_ochra(ochra, index)
-    #         check_calcerror = False
-    #     except:      # If it is not possible to successfully add the global start times, the case number is recorded
-    #         calcerror_files = calcerror_files + f', {index}'
-    #         check_calcerror = True
+    if (check_missing == False) and (check_failed == False):
+        try:      # Adding the global start times to the events in OCHRA using our preset function defined earlier
+            ochra = videoinfo_ochra(ochra, index)
+            check_calcerror = False
+        except:      # If it is not possible to successfully add the global start times, the case number is recorded
+            calcerror_files = calcerror_files + f', {index}'
+            check_calcerror = True
 
 # Printing on screen the files that are missing and with failed OCHRA data extraction
 # print(f'\nCases {missing_files[2:]} are missing')

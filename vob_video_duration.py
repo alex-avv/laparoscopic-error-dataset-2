@@ -1,16 +1,17 @@
+%reset -f
 import numpy as np
 import datetime
 import os
 
 # Defining case number for which to save video information
-folder_name = "999"
+folder_name = "074"
 
 # 'vob' contains the names of the files whose duration was found out manually and their respective durations (in DD:HH:MM format)
-vob = np.array([['VTS_01_1.VOB','01:00:00'],
-                ['VTS_01_2.VOB','00:01:00'],
-                ['VTS_01_3.VOB','00:00:01'],
-                ['VTS_01_4.VOB','00:00:00'],
-                ['VTS_01_5.VOB','00:00:00']], dtype=object)
+vob = np.array([['VTS_01_1.VOB','00:24:58'],
+                ['VTS_01_2.VOB','00:26:09'],
+                ['VTS_01_3.VOB','00:27:04'],
+                ['VTS_01_4.VOB','00:26:54'],
+                ['VTS_01_5.VOB','00:25:42']], dtype=object)
 
 # Defining path of the video files (optional)
 path = np.array(np.repeat('SONY_DVD_RECORDER_VOLUME/VIDEO_TS/', len(vob), 0), dtype=object)
@@ -24,7 +25,7 @@ video = np.transpose(np.vstack((path, vob[:,0], vob[:,0], vob[:,1], np.full(len(
 
 # Modifying the 'Short form' column
 for row in range(len(video)):
-    video[row, 2] = video[row, 2].replace('VTS_0','')
+    video[row, 2] = video[row, 2].replace('VTS_01_','')
     video[row, 2] = video[row, 2].replace('_','.')
     video[row, 2] = video[row, 2].replace('.VOB','')
 
