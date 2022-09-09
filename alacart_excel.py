@@ -12,8 +12,8 @@ import numpy as np
 # start_time = time.time()
 
 # Moving to directory where anotations are stored
-# os.chdir("C:/Users/Sera Bostan/University College London/Mazomenos, Evangelos - Griffin Institute collaboration/Grifin_annotations/ALACART")
-os.chdir("C:/Users/aleja/OneDrive - University College London/Griffin Institute collaboration/Grifin_annotations/ALACART")
+os.chdir("C:/Users/Sera Bostan/University College London/Mazomenos, Evangelos - Griffin Institute collaboration/Grifin_annotations/ALACART")
+#os.chdir("C:/Users/aleja/OneDrive - University College London/Griffin Institute collaboration/Grifin_annotations/ALACART")
 
 # Choosing file to work with later
 index = "009"
