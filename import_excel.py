@@ -163,7 +163,7 @@ try:
     # Loading video data for the case and removing non-essential information
     video = np.load(f'{index}.npy', allow_pickle=True)      # 'video' will contain the video information. Setting variable 
     # Calculating the end time of the last video for later on
-    end = video[len(video) - 1, 2] + video[len(video) - 1, 3]
+    end = video[len(video) -1, 2] + video[len(video) -1, 3]
     # Removing 'Original name' and 'Duration' columns, keeping 'Simple form name' and 'Global start time' columns
     video = np.stack((video[:, 1], video[:, 3]), axis=1)
 except:
@@ -193,7 +193,7 @@ for row in range(0, len(ochra)):         # Looping through all rows in 'ochra'
 
 """Displaying the new GST info graphically """
 # Before plotting the graph, the duration of the events has be calculated. This will be done by subtracting the global end time (GET) minus the global start time (GST) for each event
-event_timeinfo = np.empty((0,2))      # 'event_timeinfo' will hold the GSTs and GETs of certain events later on. Defining variable 
+event_timeinfo = np.empty((0,2), dtype=object)      # 'event_timeinfo' will hold the GSTs and GETs of certain events later on. Defining variable 
 
 # In this case, only the events which have the 'Task' instance filled and a 'START' label will be added to the plot
 for row in range(0, len(ochra)):         # Looping through all rows in 'ochra'
@@ -203,6 +203,15 @@ for row in range(0, len(ochra)):         # Looping through all rows in 'ochra'
             event_timeinfo = np.vstack((event_timeinfo, np.array((str(ochra[row, 0]), ochra[row, 4]))))
         else:
             event_timeinfo = np.vstack((event_timeinfo, np.array((str(ochra[row, 0]) + ochra[row, 1], ochra[row, 4]))))
+
+# If there is no event to map or if the first event's GST is not zero, adding an empty event so the timeline plots correctly later on
+import datetime      # 'datetime' library is needed later on
+if len(event_timeinfo) == 0:
+    event_timeinfo = np.vstack((event_timeinfo, np.full((1,2), np.nan)))    # Adding an empty row to hold the empty event    
+    event_timeinfo[len(event_timeinfo) -1,:] = np.stack(('',datetime.timedelta(seconds=0)))      # Populating the empty event
+elif event_timeinfo[0, 1] != datetime.timedelta(seconds=0):
+    event_timeinfo = np.vstack((event_timeinfo, np.full((1,2), np.nan)))    # Adding an empty row to hold the empty event    
+    event_timeinfo[len(event_timeinfo) -1,:] = np.stack(('',datetime.timedelta(seconds=0)))      # Populating the empty event
            
 # Sorting the events in chronological order 
 event_timeinfo = event_timeinfo[event_timeinfo[:,1].argsort()]
@@ -252,6 +261,9 @@ def plot_timeLine(name, results, end, index):
     data = np.array(list(results.values()))
     data_cum = data.cumsum(axis=1)
     category_colors = plt.get_cmap('tab20b')(np.linspace(0, 1, len(name)))
+    if len(name) > 0:       # If the first event is an empty event, plotting an invisible bar
+        if name[0] == '':       
+            category_colors = np.vstack((np.array((1,1,1,0)), category_colors[0:len(category_colors) -1]))
     #
     fig, ax = plt.subplots(figsize=(5, 1), dpi=1000)     # Defining figure size and resolution
     #
@@ -309,15 +321,20 @@ def plot_timeLine(name, results, end, index):
 # Producing the plot using the function defined earlier
 plot_timeLine(name, results, end, index)
 
+# Removing the first event in 'name' if it is an empty event
+if len(name) > 0:
+    if name[0] == '':
+        name = name[1:len(name)]
+
 # Checking how many phases are in the plot
-# number_events = len(name)
-# print(f'Case {index}: ', end='')
-# print(f'{number_events}, ', end='')
+number_events = len(name)
+print(f'Case {index}: ', end='')
+print(f'{number_events}, ', end='')
 
 # Checking which phases are in the plot
-# print(f'Case {index}: ', end='')
-# for n in range(0, len(name)):
-#     print(f"'{name[n]}', ", end='')
+print(f'Case {index}: ', end='')
+for n in range(0, len(name)):
+    print(f"'{name[n]}', ", end='')
 
 ''' return ochra        # Giving 'ochra' to the function's output '''
 

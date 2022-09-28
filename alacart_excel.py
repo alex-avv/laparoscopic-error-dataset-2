@@ -156,14 +156,14 @@ for row in range(0,len(ochra)):
 os.chdir('Video durations')
 
 try:
-      # Loading video data for the case and removing non-essential information
-      video = np.load(f'{index}.npy', allow_pickle=True)      # 'video' will contain the video information. Setting variable 
-      # Calculating the end time of the last video for later on
-      end = video[len(video) -1, 3] + video[len(video) -1, 4]
-      # Removing 'Path', 'Original name' and 'Duration' columns, keeping 'Simple form name' and 'Global start time' columns
-      video = np.stack((video[:, 2], video[:, 4]), axis=1)
+    # Loading video data for the case and removing non-essential information
+    video = np.load(f'{index}.npy', allow_pickle=True)      # 'video' will contain the video information. Setting variable 
+    # Calculating the end time of the last video for later on
+    end = video[len(video) -1, 3] + video[len(video) -1, 4]
+    # Removing 'Path', 'Original name' and 'Duration' columns, keeping 'Simple form name' and 'Global start time' columns
+    video = np.stack((video[:, 2], video[:, 4]), axis=1)
 except:
-      pass
+    pass
  
 # Returning to original working folder (i.e. one level up)
 os.chdir('../')
