@@ -81,15 +81,26 @@ def label_ochra(ochra):
     # Each event is given one of these 5 descriptive labels for easier identification later on 
     start = ['start','Start','START']      # 'start' is used to detect if an instance has the word 'Start' (or similar) later on. Defining variable
     notperformed = ['not performed','Not performed','not done','Not done','N.P.']       # 'notperformed' is used to detect if an instance has the words 'Not performed' (or similar) later on. Defining variable
-    notrecorded = ['not on video']      # 'notrecorded' is used to detect if an instance has the words 'Not recorded' (or similar) later on. Defining variable
-    description = ['End of recording',
+    notrecorded = ['Not recorded','not on video','DOCKING NOT RECORDED','Performed open']      # 'notrecorded' is used to detect if an instance has the words 'Not recorded' (or similar) later on. Defining variable
+    description = [# Descriptions with Timecode/Video subfile references
+                   'End of recording',
                    'On table flexi being performed to confirm height and make plan. Clip marked.',
                    '***Good for teaching. Right duplex ureter',
                    'Steps mixed together in this case.  Mostly file 3E',
                    'Task steps mixed in throughout this case',
                    '*****Note made of two suture oversew on conduit ?serosal tear. Must have occurred extra-corporeal***********',
                    'Appears to be simultaneous right hemicoloectomy',
-                   '?peritoneal mets anteriorly'
+                   '?peritoneal mets anteriorly',
+                   'PME performed (level of peritoneal reflection)',
+                   # Descriptions without Timecode/Video subfile references
+                   'Video ends',
+                   'change of scope to allow 30 angulation. Scfreen displayed 2D',
+                   '*** CASE RECORDED IN 3D *** Makes assessment harder. Chance of missing OCHRA errors',
+                   'Meckels identified',
+                   '4 cartridges used to divide bowel',
+                   'lat to medial. Prior to pedicle',
+                   'Step mixed in with others. Case moves around a lot',
+                   'Adhoc splenic flexure mobilisation'
                    ]       # 'description' is used to detect if an instance has one of the descriptive phrases included later on. Defining variable
 
     # This function checks if the words in a word array (e.g. 'np' or 'start') can be found on a selected instance
@@ -145,6 +156,20 @@ def label_ochra(ochra):
             ochra[row, 2] = 'OTHER'
 
     return ochra        # Giving 'ochra' to the function's output
+"""¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨"""
+
+
+"""¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨"""
+"""¨¨¨ Making statistical analysis of ERR (Error) events ¨¨¨"""
+def info_err(ochra, err_cat):
+    # Checking the annotations for the chosen Error category
+    # print(f'Case {index}: ', end='')
+    # If the event has a 'ERR' label and a filled instance, printing the Error annotation. Otherwise printing 'EMPTY'
+    for row in range(0, len(ochra)):         # Looping through all rows in 'ochra'
+        if (ochra[row, 2] == 'ERR') and (pd.isna(ochra[row, err_cat +5]) == False):
+            print(f"'{ochra[row, err_cat +5]}', ", end='')
+        elif (ochra[row, 2] == 'ERR') and (pd.isna(ochra[row, err_cat +5]) == True):
+            print("'EMPTY', ", end='')
 """¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨"""
 
 
@@ -400,27 +425,27 @@ def test_ochra(ochra):
             break
             
     # """ Checking 'Subfile' column """
-    # col_subfile = 4
-    # # Confirming all instances in the column are between 1-11 (1st character in most cases) & A-Z (2nd charecter in most cases)
-    # for row in range(0,len(ochra)):
-    #     if pd.isna(ochra[row, col_subfile]) == False:
-    #         if len(ochra[row, col_subfile]) == 1:         # Testing when instance only has 1 character (e.g. '1')
-    #             if (ochra[row, col_subfile] in file) == False:       # If an instance is not in the available options, test fails
-    #                 check_failed = True
-    #                 break
-    #         elif len(ochra[row, col_subfile]) == 2:       # Testing when instance has 2 characters (e.g. '1B' or '10')
-    #             if ((ochra[row, col_subfile][0] in file) == False) or ((ochra[row, col_subfile][1] in subfile) == False):       # If an instance is not in the available options, test fails
-    #                 if (ochra[row, col_subfile][0:2] in file) == False:
-    #                     check_failed = True
-    #                     break
-    #         elif len(ochra[row, col_subfile]) == 3:       # Testing when instance has 3 characters (e.g. '10B or 1AB')
-    #             if ((ochra[row, col_subfile][0:2] in file) == False) or ((ochra[row, col_subfile][2] in subfile) == False):       # If an instance is not in the available options, test fails
-    #                 if ((ochra[row, col_subfile][0] in file) == False) or ((ochra[row, col_subfile][1:3] in subfile) == False):
-    #                     check_failed = True
-    #                     break    
-    #         else:       # Any other options
-    #             check_failed = True
-    #             break
+    col_subfile = 4
+    # Confirming all instances in the column are between 1-11 (1st character in most cases) & A-Z (2nd charecter in most cases)
+    for row in range(0,len(ochra)):
+        if pd.isna(ochra[row, col_subfile]) == False:
+            if len(ochra[row, col_subfile]) == 1:         # Testing when instance only has 1 character (e.g. '1')
+                if (ochra[row, col_subfile] in file) == False:       # If an instance is not in the available options, test fails
+                    check_failed = True
+                    break
+            elif len(ochra[row, col_subfile]) == 2:       # Testing when instance has 2 characters (e.g. '1B' or '10')
+                if ((ochra[row, col_subfile][0] in file) == False) or ((ochra[row, col_subfile][1] in subfile) == False):       # If an instance is not in the available options, test fails
+                    if (ochra[row, col_subfile][0:2] in file) == False:
+                        check_failed = True
+                        break
+            elif len(ochra[row, col_subfile]) == 3:       # Testing when instance has 3 characters (e.g. '10B or 1AB')
+                if ((ochra[row, col_subfile][0:2] in file) == False) or ((ochra[row, col_subfile][2] in subfile) == False):       # If an instance is not in the available options, test fails
+                    if ((ochra[row, col_subfile][0] in file) == False) or ((ochra[row, col_subfile][1:3] in subfile) == False):
+                        check_failed = True
+                        break    
+            else:       # Any other options
+                check_failed = True
+                break
             
     # """ Checking 'Further info' column """
     # col_furtherinfo = 11
@@ -440,9 +465,16 @@ def test_ochra(ochra):
 # 1st part of measuring time of execution of the code
 start_time = time.time()
 
-missing_files = ''      # 'missing_files' is used to store the cases whos' anotations are missing later on. Resetting variable
+missing_files = ''      # 'missing_files' is used to store the cases whos' Excel anotations can't be opened later on. Resetting variable
 failed_files = ''       # 'failed_files' is used to store the cases whos' OCHRA data extraction is unsuccessful later on. Resetting variable
 calcerror_files = ''    # 'calcerror_files' is used to store the cases where trying to do calculations on the OCHRA data gives errors later on. Resetting variable
+
+# Performing statistical analysis on ERR (Error) data
+# 'err_catname' contains the names of the Error categories in OCHRA 
+err_catname = ['Tool-tissue Errors','Consequence','EEM','Instrument','Severity (a-e)','Location (pelvic)']
+# Selecting the Error category on which to make the statistical analysis
+err_cat = 5
+print(f'{err_catname[err_cat]} -- ', end='')
 
 # Looping through all of the cases' spreadsheets in the Griffin dataset 
 for index in range(1,91):
@@ -452,8 +484,9 @@ for index in range(1,91):
     try:        # Importing Excel file, particularly the 'Analysis' sheet within the file
         analysis_xls = pd.read_excel(file_name, sheet_name='Analysis').values
         check_missing = False
-    except:     # If it is not possible to find the file, the case number is recorded 
-        missing_files = missing_files + f', {index}'
+    except:     # If it is not possible to import the file, the case number is recorded 
+        if index not in [10, 16, 74, 76, 77, 79, 80, 81, 84, 85, 86, 88, 89]:    
+            missing_files = missing_files + f', {index}'
         check_missing = True
   
     if check_missing == False:
@@ -472,6 +505,7 @@ for index in range(1,91):
     
     if (check_missing == False) and (check_failed == False):
         try:      # Adding the global start times to the events in OCHRA using our preset function defined earlier
+            info_err(ochra, err_cat)
             ochra = videoinfo_ochra(ochra, index)
             check_calcerror = False
         except:      # If it is not possible to successfully add the global start times, the case number is recorded

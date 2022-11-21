@@ -21,7 +21,7 @@ index = 1
 # Importing Excel file, particularly the 'Analysis' sheet within the file
 analysis_xls = pd.read_excel(f'Case {index}.xls', sheet_name='Analysis').values
 
-
+ 
 
 """¨¨¨ Extracting and saving OCHRA information ¨¨¨"""
 ''' def extract_ochra(analysis_xls): '''
@@ -87,15 +87,26 @@ for row in range(0,len(ochra)):     # Looping through all of the instances in th
 # Each event is given one of these 5 descriptive labels for easier identification later on 
 start = ['start','Start','START']      # 'start' is used to detect if an instance has the word 'Start' (or similar) later on. Defining variable
 notperformed = ['not performed','Not performed','not done','Not done','N.P.']       # 'notperformed' is used to detect if an instance has the words 'Not performed' (or similar) later on. Defining variable
-notrecorded = ['not on video']      # 'notrecorded' is used to detect if an instance has the words 'Not recorded' (or similar) later on. Defining variable
-description = ['End of recording',
+notrecorded = ['Not recorded','not on video','DOCKING NOT RECORDED','Performed open']      # 'notrecorded' is used to detect if an instance has the words 'Not recorded' (or similar) later on. Defining variable
+description = [# Descriptions with Timecode/Video subfile references
+               'End of recording',
                'On table flexi being performed to confirm height and make plan. Clip marked.',
                '***Good for teaching. Right duplex ureter',
                'Steps mixed together in this case.  Mostly file 3E',
                'Task steps mixed in throughout this case',
                '*****Note made of two suture oversew on conduit ?serosal tear. Must have occurred extra-corporeal***********',
                'Appears to be simultaneous right hemicoloectomy',
-               '?peritoneal mets anteriorly'
+               '?peritoneal mets anteriorly',
+               'PME performed (level of peritoneal reflection)',
+               # Descriptions without Timecode/Video subfile references
+               'Video ends',
+               'change of scope to allow 30 angulation. Scfreen displayed 2D',
+               '*** CASE RECORDED IN 3D *** Makes assessment harder. Chance of missing OCHRA errors',
+               'Meckels identified',
+               '4 cartridges used to divide bowel',
+               'lat to medial. Prior to pedicle',
+               'Step mixed in with others. Case moves around a lot',
+               'Adhoc splenic flexure mobilisation'
                ]       # 'description' is used to detect if an instance has one of the descriptive phrases included later on. Defining variable
 
 # This function checks if the words in a word array (e.g. 'np' or 'start') can be found on a selected instance
@@ -151,6 +162,27 @@ for row in range(0,len(ochra)):
         ochra[row, 2] = 'OTHER'
         
 ''' return ochra        # Giving 'ochra' to the function's output '''
+
+
+
+"""¨¨¨ Making statistical analysis of ERR (Error) events ¨¨¨"""
+# 'err_catname' contains the names of the Error categories in OCHRA 
+err_catname = ['Tool-tissue Errors','Consequence','EEM','Instrument','Severity (a-e)','Location (pelvic)']
+# Selecting the Error category on which to make the statistical analysis
+err_cat = 0
+print(f'{err_catname[err_cat]} -- ', end='')
+
+''' def info_err(ochra, err_cat): '''
+# Checking the annotations for the chosen Error category
+print(f'Case {index}: ', end='')
+# If the event has a 'ERR' label and a filled instance, printing the Error annotation. Otherwise printing 'EMPTY'
+for row in range(0, len(ochra)):         # Looping through all rows in 'ochra'
+    if (ochra[row, 2] == 'ERR') and (pd.isna(ochra[row, err_cat +5]) == False):
+        print(f"'{ochra[row, err_cat +5]}', ", end='')
+    elif (ochra[row, 2] == 'ERR') and (pd.isna(ochra[row, err_cat +5]) == True):
+        print("'EMPTY', ", end='')
+
+''' '''
 
 
 
@@ -328,13 +360,13 @@ if len(name) > 0:
 
 # Checking how many phases are in the plot
 number_events = len(name)
-print(f'Case {index}: ', end='')
-print(f'{number_events}, ', end='')
+# print(f'Case {index}: ', end='')
+# print(f'{number_events}, ', end='')
 
 # Checking which phases are in the plot
-print(f'Case {index}: ', end='')
-for n in range(0, len(name)):
-    print(f"'{name[n]}', ", end='')
+# print(f'Case {index}: ', end='')
+# for n in range(0, len(name)):
+#     print(f"'{name[n]}', ", end='')
 
 ''' return ochra        # Giving 'ochra' to the function's output '''
 

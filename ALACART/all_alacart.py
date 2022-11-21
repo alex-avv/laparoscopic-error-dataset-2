@@ -411,7 +411,7 @@ start_time = time.time()
 
 iALACART = np.array(os.listdir(), dtype=object)      # 'iALACART' has the names of all the Excel files files with anotations in the 'ALACART' folder
 
-missing_files = ''      # 'missing_files' is used to store the cases whos' anotations are missing later on. Resetting variable
+missing_files = ''      # 'missing_files' is used to store the cases whos' Excel anotations can't be opened later on. Resetting variable
 failed_files = ''       # 'failed_files' is used to store the cases whos' OCHRA data extraction is unsuccessful later on. Resetting variable
 calcerror_files = ''    # 'calcerror_files' is used to store the cases where trying to do calculations on the OCHRA data gives errors later on. Resetting variable
 
@@ -424,7 +424,7 @@ for n in range(0,len(iALACART)-3):
     try:        # Importing Excel file, particularly the 'Analysis' sheet within the file
         analysis_xls = pd.read_excel(file_name, sheet_name='Analysis').values
         check_missing = False
-    except:     # If it is not possible to find the file, the case number is recorded 
+    except:     # If it is not possible to import the file, the case number is recorded 
         missing_files = missing_files + f', {index}'
         check_missing = True
   
