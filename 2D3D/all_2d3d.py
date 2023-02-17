@@ -1,7 +1,6 @@
 %reset -f
 """¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨"""
-"""¨¨¨ Setting up environment & files' path ¨¨¨"""
-# Importing python libraries
+## Setting up environment & importing files
 import sys
 import os
 from datetime import datetime, date
@@ -10,95 +9,19 @@ import pandas as pd
 import numpy as np
 
 # Importing custom modules
-os.chdir('../'); from spreadsheet import extract_ochra; os.chdir('2D3D')
+os.chdir('../')
+from spreadsheet import extract_ochra
+from ochra import label_ochra
+os.chdir('2D3D')
 
 # Moving to directory where anotations are stored
-os.chdir("C:/Users/aleja/OneDrive - University College London/Griffin Institute collaboration/Grifin_annotations/2D3D VIDEOS")
-# os.chdir("C:/Users/Sera Bostan/University College London/Mazomenos, Evangelos - Griffin Institute collaboration/Grifin_annotations/2D3D VIDEOS")
-"""¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨"""
-
-
-"""¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨"""
-"""¨¨¨ Labelling each annotation as START, ERR (Error), N.P. (Not Performed), N.R. (Not recorded) or DESC (Description) ¨¨¨"""
-def label_ochra(ochra):
-    # Each event is given one of these 5 descriptive labels for easier identification later on 
-    start = ['start','Start','START']      # 'start' is used to detect if an instance has the word 'Start' (or similar) later on. Defining variable
-    notperformed = ['not performed','Not performed','not done','Not done','N.P.']       # 'notperformed' is used to detect if an instance has the words 'Not performed' (or similar) later on. Defining variable
-    notrecorded = ['Not recorded','not on video','DOCKING NOT RECORDED','Performed open']      # 'notrecorded' is used to detect if an instance has the words 'Not recorded' (or similar) later on. Defining variable
-    description = [# Descriptions with Timecode/Video subfile references
-                   'End of recording',
-                   'On table flexi being performed to confirm height and make plan. Clip marked.',
-                   '***Good for teaching. Right duplex ureter',
-                   'Steps mixed together in this case.  Mostly file 3E',
-                   'Task steps mixed in throughout this case',
-                   '*****Note made of two suture oversew on conduit ?serosal tear. Must have occurred extra-corporeal***********',
-                   'Appears to be simultaneous right hemicoloectomy',
-                   '?peritoneal mets anteriorly',
-                   'PME performed (level of peritoneal reflection)',
-                   # Descriptions without Timecode/Video subfile references
-                   'Video ends',
-                   'change of scope to allow 30 angulation. Scfreen displayed 2D',
-                   '*** CASE RECORDED IN 3D *** Makes assessment harder. Chance of missing OCHRA errors',
-                   'Meckels identified',
-                   '4 cartridges used to divide bowel',
-                   'lat to medial. Prior to pedicle',
-                   'Step mixed in with others. Case moves around a lot',
-                   'Adhoc splenic flexure mobilisation'
-                   ]       # 'description' is used to detect if an instance has one of the descriptive phrases included later on. Defining variable
-
-    # This function checks if the words in a word array (e.g. 'np' or 'start') can be found on a selected instance
-    def check_words(words, instance):
-        check = False
-        for i in range(0,len(words)):
-            if (words[i] in instance) == True:
-                check = True
-                break
-        return check
-
-    # Adding an empty column to hold the labels
-    ochra = np.insert(ochra, 2, np.full(len(ochra), np.nan), 1)
-    
-    # There are some events where the 'Task Area' and 'Subtask Area' are noted but the rest of columns of the OCHRA information are empty. Assuming these cases were not performed and adding the N.P. label
-    for row in range(0,len(ochra)):         # Looping through all rows in 'ochra'
-        check_filled = False in pd.isna(ochra[row, 2:12])    # Checking if instances in the row [from 'Label' column to 'Further info' column] are empty or not
-        # If all instances in the row are empty, a N.P. label is given
-        if ((pd.isna(ochra[row, 0]) == False) or (pd.isna(ochra[row, 1]) == False)) and (check_filled == False):
-            ochra[row, 2] = 'N.P.'
-            ochra[row, 11] = 'ASSUMED NOT PERFORMED'       # Noting in 'Further info' this event was assumed to not be performed (for clarity)
-
-    # There are some events where the 'Task Area', 'Subtask Area', 'Timecode' and 'Subfile' are noted but the rest of columns of the OCHRA information are empty. Assuming these are start events and adding the START label
-    for row in range(0,len(ochra)):         # Looping through all rows in 'ochra'
-        check_filled = False in pd.isna(ochra[row, 5:12])    # Checking if instances in the row [from 'Tool-tissue Errors' column to 'Further info' column] are empty or not
-        # If all instances in the row are empty, a START label is given
-        if ((pd.isna(ochra[row, 0]) == False) or (pd.isna(ochra[row, 1]) == False)) and (pd.isna(ochra[row, 3]) == False) and (pd.isna(ochra[row, 4]) == False) and (check_filled == False):
-            ochra[row, 2] = 'START'
-            ochra[row, 11] = 'ASSUMED START'       # Noting in 'Further info' this event was assumed to be a start event (for clarity)
-
-    # Marking the rest of events
-    for row in range(0,len(ochra)):     # Looping through all rows in 'ochra'
-        check_filled = False in pd.isna(ochra[row, 5:11])    # Checking if instances in the row [from 'Tool-tissue Errors' column to 'Location (pelvic)' column] are empty or not
-        # If all instances in the row are empty, and the 'Further info' column has the 'Start' word in it, labelling as START
-        if (check_filled == False) and (check_words(start, ochra[row, 11]) == True):
-            ochra[row, 2] = 'START'
-        # If all instances in the row are empty, and the 'Further info' column has the 'Not performed' words in it, labelling as N.P.
-        elif (check_filled == False) and (check_words(notperformed, ochra[row, 11]) == True):
-            ochra[row, 2] = 'N.P.'
-        # If all instances in the row are empty, and the 'Further info' column has the 'Not recorded' words in it, labelling as N.R.
-        elif (check_filled == False) and (check_words(notrecorded, ochra[row, 11]) == True):
-            ochra[row, 2] = 'N.R.'
-        # If all instances in the row are empty, and the 'Further info' column has a descriptive phrase in it, labelling as DESC
-        elif (check_filled == False) and (check_words(description, ochra[row, 11]) == True):
-            ochra[row, 2] = 'DESC'
-        # If the row is not fully empty, labelling as ERR
-        elif check_filled == True:
-            ochra[row, 2] = 'ERR'
-
-    # Marking as 'OTHER' the events that did not pass the before tests
-    for row in range(0,len(ochra)):
-        if pd.isna(ochra[row, 2]) == True:
-            ochra[row, 2] = 'OTHER'
-
-    return ochra        # Giving 'ochra' to the function's output
+annotations_dir = [('C:/Users/aleja/OneDrive - University College London/'
+                    'Griffin Institute collaboration/Grifin_annotations/2D3D '
+                    'VIDEOS'),
+                   ('C:/Users/Sera Bostan/University College London/'
+                    'Mazomenos, Evangelos - Griffin Institute collaboration/'
+                    'Grifin_annotations/2D3D VIDEOS')]
+os.chdir(annotations_dir[0])
 """¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨"""
 
 
