@@ -2,12 +2,6 @@ import pandas as pd
 import numpy as np
 import os
 
-import matplotlib.pyplot as plt
-import matplotlib.ticker
-from matplotlib.ticker import FuncFormatter
-import itertools
-import datetime
-
 def is_filled(instance):
     ''' Checks whether an instance is partially filled or not.
     
@@ -67,8 +61,7 @@ def label_ochra(ochra, dataset):
         Numpy array representing the OCHRA information, as extracted using the
         spreadsheet.extract_ochra function.
     dataset : str
-        Specifies whether the OCHRA information comes from from 2D3D or
-        ALACART.
+        Specifies whether the OCHRA information comes from 2D3D or ALACART.
 
     Returns
     -------
@@ -216,231 +209,92 @@ def label_ochra(ochra, dataset):
     return ochra
 
 
-def plot_timeline(name, results, end, case):
-    # 'name' contains the text that will be inside the boxes in the graph
-    # 'results' contains the durations in seconds to plot the boxes in the graph
-    # 'end' contains the end time of the last video in seconds
-    
-    # This function plots the graph
+def add_gst_ochra(ochra, labels, case, dataset):
+    ''' Adds the Global Start Time (GST) to chosen tagged OCHRA annotations.
 
-    # This function is to transform x-axis to time format (https://
-    # stackoverflow.com/questions/48294332/plot-datetime-timedelta-using-
-    # matplotlib-and-python)
-    def format_func(x, pos):
-        hours = int(x//3600)
-        minutes = int((x%3600)//60)
-        seconds = int(x%60)  
-        return "{:d}:{:02d}".format(hours, minutes)
-        # return "{:d}:{:02d}:{:02d}".format(hours, minutes, seconds)
-    formatter = FuncFormatter(format_func)
+    Parameters
+    ----------
+    ochra : 2D ndarray
+        Numpy array representing the OCHRA information, as labelled using the
+        ochra.label_ochra function.
+    labels: list of strs
+        With the tags of the annotations for which to add the GST.
+    case: str
+        Case file from where the OCHRA information was extracted.
+    dataset : str
+        Specifies whether the OCHRA data comes from 2D3D or ALACART.
 
-    # Defining colours for the plot
-    bg_color = 'white'  #'xkcd:dark gray'
-    cover_color = 'black'
+    Returns
+    -------
+    ochra: 2D ndarray
+        Numpy array representing updated OCHRA data with GTSs.
+    end_time: datetime.timedelta
+        End time of the recording (in HH:MM:SS format).
 
-    # Plotting the times (code from: https://matplotlib.org/3.1.1/gallery/
-    # lines_bars_and_markers/horizontal_barchart_distribution.html#sphx-glr-
-    # gallery-lines-bars-and-markers-horizontal-barchart-distribution-py)
-    labels = list(results.keys())
-    data = np.array(list(results.values()))
-    data_cum = data.cumsum(axis=1)
-    category_colors = plt.get_cmap('tab20b')(np.linspace(0, 1, len(name)))
+    '''
 
-    # If the first event is an empty event, plotting an invisible bar
-    if len(name) > 0:
-        if name[0] == '':       
-            category_colors = np.vstack((np.array((1, 1, 1, 0)),
-                                         category_colors[0:-1]))
-
-    # Figure size and resolution
-    fig, ax = plt.subplots(figsize=(5, 1), dpi=1000)     
-    for i, (colname, color) in enumerate(zip(name, category_colors)):
-        widths = data[:, i]
-        starts = data_cum[:, i] - widths
-
-        thr = 0.0555  # This threshold is to determine if the graph label
-        # will be inside the box or in the legend
-        if (len(name[i]) == 2) and (widths/end > thr):
-            ax.barh(labels, widths, left=starts, height=1, label='_nolegend_',
-                    color=color)
-        elif (len(name[i]) == 1) and (widths/(2 * end) > thr):
-            ax.barh(labels, widths, left=starts, height=1, label='_nolegend_',
-                    color=color)
-        else:
-            ax.barh(labels, widths, left=starts, height=1, label=colname,
-                    color=color)
-
-        xcenters = starts + widths / 2
-
-        if widths/end > thr:
-            r, g, b, _ = color
-            text_color = 'white' if r * g * b < 0.5 else 'black'
-            for y, (x, c) in enumerate(zip(xcenters, widths)):
-                ax.text(x, y, name[i], ha='center', va='center',
-                        color=text_color, fontsize='medium')
-        # Tightening the axes of the graph
-        plt.autoscale(enable=True, axis='x', tight=True)
-
-    # Ordering legend labels from left to right (https://stackoverflow.com/
-    # questions/10101141/matplotlib-legend-add-items-across-columns-
-    # instead-of-down)
-    def flip(items, ncol):
-        return itertools.chain(*[items[i::ncol] for i in range(ncol)])
-    handles, labels = ax.get_legend_handles_labels()
-    ax.legend(flip(handles, 5), flip(labels, 5), ncol=5, loc='lower left',
-              bbox_to_anchor=(0.035, 1), fontsize='small')
-
-    # Modifying x-axis to appropriate time format
-    ax.tick_params(axis='y', colors=bg_color)  
-    plt.xticks(np.linspace(0, end, len(ax.get_xticks()) - 1))
-    ax.xaxis.set_major_formatter(formatter)
-
-    # Adding title to plot
-    ticks_loc = ax.get_yticks()
-    ax.yaxis.set_major_locator(matplotlib.ticker.FixedLocator(ticks_loc))
-    ax.set_yticklabels([f'Surgery\nTimeline\nCase {case}'], color=cover_color)
-
-    # Embellishing plot
-    fig.patch.set_facecolor(bg_color)
-    ax.set_facecolor(bg_color)
-    ax.spines['bottom'].set_color(cover_color)
-    ax.spines['top'].set_color(bg_color)
-    ax.spines['left'].set_color(cover_color)
-    ax.spines['right'].set_color(cover_color)
-    ax.tick_params(axis='x', colors=cover_color)
-    plt.show()
-
-
-def time_info(ochra, labels, case, dataset, visualise=False):
-    """¨¨¨ Adds global timeline information to OCHRA 
-    
-    Imports video data
-    ¨¨¨"""
-    
-    # This function finds the global start time of a chosen video using the video information loaded earlier
-    def find_video_gst(video, simpleformname):
-        for row in range(0,len(video)):
-            if simpleformname == video[row, 0]:
-                video_gst = video[row, 1]         # Storing the global start time in variable 'gst'
-                break
-        return video_gst
-    
     dataset = dataset.lower()
     if dataset not in ['alacart', '2d3d']:
         raise ValueError("Selected dataset must be be either 2D3D or ALACART.")
         
-    ## Opening folder with the video data stored as .npy files
+    # Opening folder with the video data stored as .npy files
     os.chdir('Video durations')
 
-    ## Noting down the column numbers of each video event
+    # Noting down the column numbers of each video event
     if dataset == '2d3d':
         original, short, duration, glob_st = 0, 1, 2, 3
     elif dataset == 'alacart':
         path, original, short, duration, glob_st = 0, 1, 2, 3, 4
 
-    ## Loading video data for the case and only keeping essential information        
+    # Loading video data for the case       
     video = np.load(f'{case}.npy', allow_pickle=True)
+    
     # Discarding 'Path', 'Original name' and 'Duration' columns, keeping 'Short
     # form name' and 'Global start time' columns
     video_info = np.stack([video[:, short], video[:, glob_st]], axis=1)
 
-    ## Returning to original working folder (i.e. one level up)
+    # Returning to original working folder (i.e. one level up)
     os.chdir('../')
 
-    ## Adding an empty column to hold the global start times of the annotations
+    # Adding an empty column to hold the GSTs of the annotations
     ochra = np.insert(ochra, 4, np.full(len(ochra), np.nan), 1)
     
-    ## Noting down the column numbers of each event
+    # Noting down the column numbers of each event
     task, subtask, label, timecode, gst, subfile = 0, 1, 2, 3, 4, 5
     errors, conseq, eem, instr, severity, loc, info = 6, 7, 8, 9, 10, 11, 12    
 
-    ## Appending Global Start Time (GST) to specified tagged events
-    # This is done by adding the GST of the video in the 'Subfile column' plus
-    # the time in the 'Timecode' column
+    def find_gst_video(video_info, simple_form):
+        ''' Returns the GST of a chosen video for the case.
+
+        Parameters
+        ----------
+        video : length-2 2D ndarray
+            With the case videos information. The first column has the 'Short
+            form' video names and the second column the respective GSTs.
+        simple_form : str
+            'Short form' name of the video from which to get the GST.
+
+        Returns
+        -------
+        datetime.timedelta
+            GST in HH:MM:SS format.
+
+        '''
+        for row in range(len(video_info)):
+            if video_info[row, 0] == simple_form:
+                return video_info[row, 1]
+        
+    # Adding GST to specified tagged events. This is done by summing the GST
+    # of the video in the 'Subfile column' plus the time in the 'Timecode'
+    # column
     for tag in labels:
         for row in range(len(ochra)):
             if ochra[row, label] == tag:
                 ochra[row, gst] = (ochra[row, timecode] + 
-                                   find_video_gst(video_info,
+                                   find_gst_video(video_info,
                                                   ochra[row, subfile]))
-
-    ## Displaying the new GST info graphically
-    # Before plotting the graph, the duration of the events has be calculated.
-    # This will be done by subtracting the Global End Time (GET) minus the GST
-    # for each event
-    if visualise:
-        # Calculating the end time of the last video for later on
-        end = video[-1, glob_st] + video[-1, duration]
-        
-        event_times = np.empty((0, 2), dtype=object)  # 'event_times' will
-        # hold the GSTs and GETs of certain events later on 
-        
-        ## In this case, only the events with the 'Task' instance filled and
-        ## with one of the specified tags will be added to the plot
-        for row in range(len(ochra)):
-            if is_filled(ochra[row, task]) and ochra[row, label] in labels:
-                # Saving the event 'Task/Subtask Area' and GST in the first and
-                # second columns of 'event_times', respectively
-                if is_filled(ochra[row, subtask]):
-                    event_times = np.vstack([event_times,
-                                             np.array([str(ochra[row, task]) +
-                                                       ochra[row, subtask],
-                                                       ochra[row, gst]])])
-                else:
-                    event_times = np.vstack([event_times,
-                                             np.array([str(ochra[row, task]),
-                                                       ochra[row, gst]])])
-        
-        ## If there is no event to map or if the first event's GST is not zero,
-        ## adding an empty event so the timeline plots correctly later on
-        if len(event_times) == 0 or (event_times[0, 1] !=
-                                     datetime.timedelta(seconds=0)):   
-            event_times = np.vstack([event_times,
-                                     np.array(['', datetime.timedelta(seconds=
-                                                                      0)])])
-
-        ## Sorting the events in chronological order 
-        event_times = event_times[event_times[:, 1].argsort()]
-        
-        # Adding two empty columns to hold the GETs and durations of the
-        # chosen events
-        event_times = np.hstack([event_times,
-                                 np.full((len(event_times), 2), np.nan)])
-        # Populating the 'GET' and 'Duration' columns
-        event_times[:, 2] = np.append(event_times[1:len(event_times), 1], end)
-        event_times[:, 3] = event_times[:, 2] - event_times[:, 1]
-        
-        # Adding an empty column to hold the durations in seconds (i.e. not in
-        # HH:MM:SS format)
-        event_times = np.hstack([event_times,
-                                 np.full((len(event_times), 1), np.nan)])
-        # Populating the 'Duration [seconds]' column
-        for row in range(len(event_times)):
-            event_times[row, 4] = event_times[row, 3].total_seconds()
-
-        ## Defining variables for the plot
-        area = event_times[:, 0]  # 'area' contains the 'Task/Subtask Area'
-        # text
-        durations = {'Durations (in s)': event_times[:, 4]}  # 'durations'
-        # has the times to plot the boxes of the graph
-        end = end.total_seconds()  # 'end' is the end time of the last
-        # video in seconds
-
-        plot_timeline(area, durations, end, case)
-        
-        ## Removing the first event in 'area' if it is an empty event
-        if len(area) > 0:
-            if area[0] == '':
-                area = area[1:len(area)]
-        
-        # Checking how many phases are in the plot
-        number_events = len(area)
-        print(f'Case {case}: ', end='')
-        print(f'{number_events}, ', end='')
-        
-        # Checking which phases are in the plot
-        print(f'Case {case}: ', end='')
-        for n in range(len(area)):
-            print(f"'{area[n]}', ", end='')
-        
-    return ochra, area
+                
+    # Calculating end time of the last video
+    end_time = video[-1, glob_st] + video[-1, duration]
+    
+    return ochra, end_time
