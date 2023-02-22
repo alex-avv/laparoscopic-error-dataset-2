@@ -2,9 +2,10 @@ import pandas as pd
 import numpy as np
 import os
 
+
 def is_filled(instance):
     ''' Checks whether an instance is partially filled or not.
-    
+
     If a not NaN is found (i.e. instance is not completely empty), it returns
     True, else it gives False.
 
@@ -17,12 +18,12 @@ def is_filled(instance):
     bool
 
     '''
-    
+
     if isinstance(instance, np.ndarray):
         check = False in pd.isna(instance)
     else:
         check = not pd.isna(instance)
-        
+
     return check
 
 
@@ -46,7 +47,7 @@ def check_words(words, instance):
         if word in instance:
             check = True
             break
-    return check    
+    return check
 
 
 def label_ochra(ochra, dataset):
@@ -81,7 +82,6 @@ def label_ochra(ochra, dataset):
     task, subtask, label, timecode, subfile, errors = 0, 1, 2, 3, 4, 5
     conseq, eem, instr, severity, loc, info = 6, 7, 8, 9, 10, 11
 
-
     ## Each event is given one of these 5 descriptive labels for easier
     ## identification later on
     if dataset == '2d3d':
@@ -89,15 +89,15 @@ def label_ochra(ochra, dataset):
         # similar) later on. Defining variable
         start = ['start', 'Start', 'START']
 
-        # 'notperformed' is used to detect if an instance has the words 'Not 
+        # 'notperformed' is used to detect if an instance has the words 'Not
         # performed' (or similar) later on. Defining variable
         notperformed = ['not performed', 'Not performed', 'not done',
                         'Not done', 'N.P.']
 
-        # 'notrecorded' is used to detect if an instance has the words 'Not 
+        # 'notrecorded' is used to detect if an instance has the words 'Not
         # recorded' (or similar) later on. Defining variable
         notrecorded = ['Not recorded', 'not on video', 'DOCKING NOT RECORDED',
-                       'Performed open']          
+                       'Performed open']
 
         # 'description' is used to detect if an instance has one of the
         # descriptive phrases included later on. Defining variable
@@ -114,7 +114,7 @@ def label_ochra(ochra, dataset):
                        'Appears to be simultaneous right hemicoloectomy',
                        '?peritoneal mets anteriorly',
                        'PME performed (level of peritoneal reflection)',
-      
+
                        # Descriptions w/o Timecode/Video subfile references
                        'Video ends',
                        'change of scope to allow 30 angulation. Scfreen '
@@ -125,7 +125,7 @@ def label_ochra(ochra, dataset):
                        '4 cartridges used to divide bowel',
                        'lat to medial. Prior to pedicle',
                        'Step mixed in with others. Case moves around a lot',
-                       'Adhoc splenic flexure mobilisation']       
+                       'Adhoc splenic flexure mobilisation']
 
     elif dataset == 'alacart':
         start = ['start ', 'Start ', 'START']
@@ -133,7 +133,6 @@ def label_ochra(ochra, dataset):
         notrecorded = ['not recorded', 'Not recorded', 'not on video',
                        'Not on video', 'not shown', 'Not shown']
         description = ['Case appears to be converted at this point']
-
 
     ## There are some events where the 'Task Area' and 'Subtask Area' are noted
     ## but the rest of columns of the OCHRA information are empty. Assuming
@@ -150,7 +149,6 @@ def label_ochra(ochra, dataset):
             ochra[row, label] = 'N.P.'
             ochra[row, info] = 'ASSUMED NOT PERFORMED'  # Noting in 'Further
             # info' this event was assumed to not be performed (for clarity)
-
 
     ## There are some events where the 'Task Area', 'Subtask Area', 'Timecode'
     ## and 'Subfile' are noted but the rest of columns of the OCHRA information
@@ -170,12 +168,11 @@ def label_ochra(ochra, dataset):
             ochra[row, info] = 'ASSUMED START'  # Noting in 'Further info' this
             # event was assumed to be a start event (for clarity)
 
-
     ## Marking the rest of events
     for row in range(len(ochra)):
         # Checking if instances in the row [from 'Tool-tissue Errors' column to
         # 'Location (pelvic)' column] are empty or not
-        check_empty = not is_filled(ochra[row, errors:loc + 1])   
+        check_empty = not is_filled(ochra[row, errors:loc + 1])
 
         # If all instances in the row are empty, and the 'Further info' column
         # has the 'Start' word in it, labelling as START
@@ -236,7 +233,7 @@ def add_gst_ochra(ochra, labels, case, dataset):
     dataset = dataset.lower()
     if dataset not in ['alacart', '2d3d']:
         raise ValueError("Selected dataset must be be either 2D3D or ALACART.")
-        
+
     # Opening folder with the video data stored as .npy files
     os.chdir('Video durations')
 
@@ -246,9 +243,9 @@ def add_gst_ochra(ochra, labels, case, dataset):
     elif dataset == 'alacart':
         path, original, short, duration, glob_st = 0, 1, 2, 3, 4
 
-    # Loading video data for the case       
+    # Loading video data for the case
     video = np.load(f'{case}.npy', allow_pickle=True)
-    
+
     # Discarding 'Path', 'Original name' and 'Duration' columns, keeping 'Short
     # form name' and 'Global start time' columns
     video_info = np.stack([video[:, short], video[:, glob_st]], axis=1)
@@ -258,10 +255,10 @@ def add_gst_ochra(ochra, labels, case, dataset):
 
     # Adding an empty column to hold the GSTs of the annotations
     ochra = np.insert(ochra, 4, np.full(len(ochra), np.nan), 1)
-    
+
     # Noting down the column numbers of each event
     task, subtask, label, timecode, gst, subfile = 0, 1, 2, 3, 4, 5
-    errors, conseq, eem, instr, severity, loc, info = 6, 7, 8, 9, 10, 11, 12    
+    errors, conseq, eem, instr, severity, loc, info = 6, 7, 8, 9, 10, 11, 12
 
     def find_gst_video(video_info, simple_form):
         ''' Returns the GST of a chosen video for the case.
@@ -283,18 +280,18 @@ def add_gst_ochra(ochra, labels, case, dataset):
         for row in range(len(video_info)):
             if video_info[row, 0] == simple_form:
                 return video_info[row, 1]
-        
+
     # Adding GST to specified tagged events. This is done by summing the GST
     # of the video in the 'Subfile column' plus the time in the 'Timecode'
     # column
     for tag in labels:
         for row in range(len(ochra)):
             if ochra[row, label] == tag:
-                ochra[row, gst] = (ochra[row, timecode] + 
+                ochra[row, gst] = (ochra[row, timecode] +
                                    find_gst_video(video_info,
                                                   ochra[row, subfile]))
-                
+
     # Calculating end time of the last video
     end_time = video[-1, glob_st] + video[-1, duration]
-    
+
     return ochra, end_time

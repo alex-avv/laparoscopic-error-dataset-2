@@ -37,7 +37,7 @@ ochra, check_failed = extract_ochra(analysis_xls)
 ## (Not recorded) or DESC (Description)
 ochra = label_ochra(ochra, dataset='2d3d')
 print(f'START -- Case {case}: ', end='')
-info_label(ochra, 'START')
+info_label(ochra, 'START', total=False)
 
 ## Making statistical analysis of ERR (Error) events
 error_category = 'Tool-tissue Errors'

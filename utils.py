@@ -4,38 +4,86 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker
 from matplotlib.ticker import FuncFormatter
 import itertools
-import datetime
+from datetime import timedelta
+
 
 def info_label(ochra, tag_name, total=False):
-    # Notes: Checking how many phases are in the plot
-    # Notes: Checking which phases are in the plot
-    
+    ''' Prints the 'Task-Subtask' of the annotations with the chosen label.
+
+    Parameters
+    ----------
+    ochra : 2D ndarray
+        Numpy array representing the OCHRA information, as labelled using the
+        ochra.label_ochra function.
+    tag_name : str
+        Tag of the annotations for which to show the 'Task-Subtask'.
+    total : bool, optional
+        Specifies whether to show the total number of events with the label
+        instead. The default is False.
+
+    Raises
+    ------
+    ValueError
+        Chosen label must be either START, ERR, N.P., N.R. or DESC.
+
+    Returns
+    -------
+    None.
+
+    '''
+
+    if tag_name not in ['START', 'ERR', 'N.P.', 'N.R.', 'DESC']:
+        raise ValueError("Chosen label must be either START, ERR, N.P., N.R. "
+                         "or DESC.")
+
     # Noting down the column numbers of the events
     task, subtask, label, timecode, subfile, errors = 0, 1, 2, 3, 4, 5
     conseq, eem, instr, severity, loc, info = 6, 7, 8, 9, 10, 11
-    
+
     # Checking the annotations for the chosen label. If the event has the
     # specified tag, saving its 'Task-Subtask' combination
     text = []
     for row in range(len(ochra)):
-        if ochra[row, label] == tag_name:            
+        if ochra[row, label] == tag_name:
             if not isna(ochra[row, subtask]):
                 text += [str(ochra[row, task]) + ochra[row, subtask]]
             else:
                 text += [str(ochra[row, task])]
-    
+
     # Printing information on screen
     if not total:
         for word in text:
             print(f"'{word}', ", end='')
-    else: 
-        print(f'{len(text)}, ', end='')       
-        
+    else:
+        print(f'{len(text)}, ', end='')
+
 
 def info_error(ochra, err_name):
-    # Notes: category on which to make the analysis
-    
-    # 'err_cats' contains the names of the Error categories in OCHRA 
+    ''' Prints the parameter of the chosen error category for all annotations.
+
+    If an instance has a NaN as a value, it displays 'EMPTY' instead.
+
+    Parameters
+    ----------
+    ochra : 2D ndarray
+        Numpy array representing the OCHRA information, as labelled using the
+        ochra.label_ochra function.
+    err_name : str
+        OCHRA error category for which to display the parameters.
+
+    Raises
+    ------
+    ValueError
+        Chosen error category must be either Tool-tissue Errors, Consequence,
+        EEM, Instrument, Severity (a-e) or Location (pelvic).
+
+    Returns
+    -------
+    None.
+
+    '''
+
+    # 'err_cats' contains the names of the Error categories in OCHRA
     err_cats = ['Tool-tissue Errors', 'Consequence', 'EEM',
                 'Instrument', 'Severity (a-e)', 'Location (pelvic)']
 
@@ -51,7 +99,7 @@ def info_error(ochra, err_name):
     # Noting down the column numbers of the events
     task, subtask, label, timecode, subfile, errors = 0, 1, 2, 3, 4, 5
     conseq, eem, instr, severity, loc, info = 6, 7, 8, 9, 10, 11
-    
+
     # Checking the annotations for the chosen Error category. If the event has
     # a 'ERR' label and a filled instance, printing the Error annotation.
     # Otherwise printing 'EMPTY'
@@ -64,38 +112,32 @@ def info_error(ochra, err_name):
             print("'EMPTY', ", end='')
 
 
-def plot_timeline(text, bar_widths, end, case):
-    ''' Visualises the GSTs of the chosen events in a timeline.
+def _plot_timeline(text, bar_widths, case):
+    ''' Visualises the GSTs of the OCHRA events in a timeline.
 
     Parameters
     ----------
     text : list of str
-         'Task-Subtask' of the annotations, which will be inside the graph's
-         boxes.
-    bar_widths : TYPE
+        'Task-Subtask' of the annotations, which will be inside the graph's
+        boxes.
+    bar_widths : dict of ndarray
         Duration of the annotations (in s), which will plot the graph's boxes.
-    end : TYPE
-        End time of the recording (in s), for re.
-    case : TYPE
-        DESCRIPTION.
+    case : str
+        Case file from where the OCHRA information was extracted.
 
     Returns
     -------
-    TYPE
-        DESCRIPTION.
+    None.
 
     '''
-    # 'name' contains the text that will be inside the boxes in the graph
-    # 'results' contains the durations in seconds to plot the boxes in the graph
-    # 'end' contains the end time of the last video in seconds
 
     # This function is to transform x-axis to time format (https://
     # stackoverflow.com/questions/48294332/plot-datetime-timedelta-using-
     # matplotlib-and-python)
     def format_func(x, pos):
-        hours = int(x//3600)
-        minutes = int((x%3600)//60)
-        # seconds = int(x%60)  
+        hours = int(x // 3600)
+        minutes = int((x % 3600) // 60)
+        # seconds = int(x % 60)
         return "{:d}:{:02d}".format(hours, minutes)
         # return "{:d}:{:02d}:{:02d}".format(hours, minutes, seconds)
     formatter = FuncFormatter(format_func)
@@ -103,6 +145,10 @@ def plot_timeline(text, bar_widths, end, case):
     # Defining colours for the plot
     bg_color = 'white'  # 'xkcd:dark gray'
     cover_color = 'black'
+
+    # 'end' is the end time of the recording (in seconds). Used to decide
+    # whether to show the 'Task-Subtask' inside the bars or in the legend.
+    end = list(bar_widths.values())[0].sum()
 
     # Plotting the times (code from: https://matplotlib.org/3.1.1/gallery/
     # lines_bars_and_markers/horizontal_barchart_distribution.html#sphx-glr-
@@ -114,22 +160,22 @@ def plot_timeline(text, bar_widths, end, case):
 
     # If the first event is an empty event, plotting an invisible bar
     if len(text) > 0:
-        if text[0] == '':       
+        if text[0] == '':
             category_colors = np.vstack((np.array((1, 1, 1, 0)),
                                          category_colors[0:-1]))
 
     # Figure size and resolution
-    fig, ax = plt.subplots(figsize=(5, 1), dpi=1000)     
+    fig, ax = plt.subplots(figsize=(5, 1), dpi=1000)
     for i, (colname, color) in enumerate(zip(text, category_colors)):
         widths = data[:, i]
         starts = data_cum[:, i] - widths
 
         thr = 0.0555  # This threshold is to determine if the graph label
         # will be inside the box or in the legend
-        if (len(text[i]) == 2) and (widths/end > thr):
+        if (len(text[i]) == 2) and (widths / end > thr):
             ax.barh(labels, widths, left=starts, height=1, label='_nolegend_',
                     color=color)
-        elif (len(text[i]) == 1) and (widths/(2 * end) > thr):
+        elif (len(text[i]) == 1) and (widths / (2 * end) > thr):
             ax.barh(labels, widths, left=starts, height=1, label='_nolegend_',
                     color=color)
         else:
@@ -138,7 +184,7 @@ def plot_timeline(text, bar_widths, end, case):
 
         xcenters = starts + widths / 2
 
-        if widths/end > thr:
+        if widths / end > thr:
             r, g, b, _ = color
             text_color = 'white' if r * g * b < 0.5 else 'black'
             for y, (x, c) in enumerate(zip(xcenters, widths)):
@@ -157,7 +203,7 @@ def plot_timeline(text, bar_widths, end, case):
               bbox_to_anchor=(0.035, 1), fontsize='small')
 
     # Modifying x-axis to appropriate time format
-    ax.tick_params(axis='y', colors=bg_color)  
+    ax.tick_params(axis='y', colors=bg_color)
     plt.xticks(np.linspace(0, end, len(ax.get_xticks()) - 1))
     ax.xaxis.set_major_formatter(formatter)
 
@@ -175,11 +221,11 @@ def plot_timeline(text, bar_widths, end, case):
     ax.spines['right'].set_color(cover_color)
     ax.tick_params(axis='x', colors=cover_color)
     plt.show()
-    
+
 
 def visualise_gsts(ochra, labels, case, end_time):
     ''' Displays graphically the GST of the chosen tagged OCHRA annotations.
-        
+
     Parameters
     ----------
     ochra : 2D ndarray
@@ -191,13 +237,11 @@ def visualise_gsts(ochra, labels, case, end_time):
         Case file from where the OCHRA information was extracted.
     end_time: datetime.timedelta
         End time of the surgery recording (in HH:MM:SS format).
-    more_info: length-2 tuple of bools
-        Specifies whether to print the total number of phases 
 
     Returns
     -------
     None.
-    
+
     Notes
     -----
     Before plotting the timeline, the duration of the events was calculated.
@@ -205,14 +249,14 @@ def visualise_gsts(ochra, labels, case, end_time):
     Start Time (GST) for each event.
 
     '''
-    
+
     ## Noting down the column numbers of the events
     task, subtask, label, timecode, gst, subfile = 0, 1, 2, 3, 4, 5
-    errors, conseq, eem, instr, severity, loc, info = 6, 7, 8, 9, 10, 11, 12 
-    
+    errors, conseq, eem, instr, severity, loc, info = 6, 7, 8, 9, 10, 11, 12
+
     ## 'event_times' will hold the event GSTs and GETs in the following loop
-    event_times = np.empty((0, 2), dtype=object)  
-    
+    event_times = np.empty((0, 2), dtype=object)
+
     ## In this case, only the events with the 'Task' instance filled and with
     ## one of the specified tags will be added to the plot
     for row in range(len(ochra)):
@@ -228,18 +272,16 @@ def visualise_gsts(ochra, labels, case, end_time):
                 event_times = np.vstack([event_times,
                                          np.array([str(ochra[row, task]),
                                                    ochra[row, gst]])])
-    
+
     ## If there is no event to map or if the first event's GST is not zero,
     ## adding an empty event so the timeline plots correctly later on
-    if (len(event_times) == 0
-        or event_times[0, 1] != datetime.timedelta(seconds=0)):   
+    if len(event_times) == 0 or (event_times[0, 1] != timedelta(seconds=0)):
         event_times = np.vstack([event_times,
-                                 np.array(['',
-                                           datetime.timedelta(seconds=0)])])
+                                 np.array(['', timedelta(seconds=0)])])
 
-    ## Sorting the events in chronological order 
+    ## Sorting the events in chronological order
     event_times = event_times[event_times[:, 1].argsort()]
-    
+
     # Adding two empty columns to hold the GETs and durations of the
     # chosen events
     event_times = np.hstack([event_times,
@@ -248,7 +290,7 @@ def visualise_gsts(ochra, labels, case, end_time):
     # Populating the 'GET' and 'Duration' columns
     event_times[:, 2] = np.append(event_times[1:len(event_times), 1], end_time)
     event_times[:, 3] = event_times[:, 2] - event_times[:, 1]
-    
+
     # Adding an empty column to hold the durations in seconds (i.e. not in
     # HH:MM:SS format)
     event_times = np.hstack([event_times,
@@ -260,12 +302,5 @@ def visualise_gsts(ochra, labels, case, end_time):
     ## Defining variables for the plot
     text = event_times[:, 0]  # With the 'Task-Subtask' of the annotations
     bar_widths = {'Durations (in s)': event_times[:, 4]}
-    end = end_time.total_seconds()  # End time of the surgery in seconds
 
-    plot_timeline(text, bar_widths, end, case)
-    
-    ## Removing the first event in 'area' if it is an empty event
-    if len(text) > 0:
-        if text[0] == '':
-            text = text[1:len(text)]
-    
+    _plot_timeline(text, bar_widths, case)
