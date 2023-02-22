@@ -1,12 +1,8 @@
 %reset_selective -f ^(?!failed_files$|calcerror_files$).*
 
 ## Setting up environment & importing files
-import sys
 import os
-from datetime import datetime, date
-import time
 import pandas as pd
-import numpy as np
 
 # Importing custom modules
 os.chdir('../')
@@ -31,7 +27,7 @@ case = "009"
 analysis_xls = pd.read_excel(f'{case}.xls', sheet_name='Analysis').values
 
 ## Extracting and saving OCHRA information
-ochra, check_failed = extract_ochra(analysis_xls)
+ochra = extract_ochra(analysis_xls)
 
 ## Labelling each annotation as START, ERR (Error), N.P. (Not Performed), N.R.
 ## (Not recorded) or DESC (Description)
