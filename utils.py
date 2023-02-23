@@ -165,7 +165,7 @@ def _plot_timeline(text, bar_widths, case):
                                          category_colors[0:-1]))
 
     # Figure size and resolution
-    fig, ax = plt.subplots(figsize=(5, 1), dpi=1000)
+    fig, ax = plt.subplots(figsize=(5, 1))
     for i, (colname, color) in enumerate(zip(text, category_colors)):
         widths = data[:, i]
         starts = data_cum[:, i] - widths

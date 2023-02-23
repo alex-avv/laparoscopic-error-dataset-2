@@ -12,4 +12,4 @@ Similarly, to analyse the whole dataset, open the `all_datasets` file, select th
 
 ## Notes
 
-In order to get the event global times for visualisation, the video durations were first extracted using the scripts in the `durations` folder. The 2D3D durations were extracted all at once, where as for ALACART this was done one by one. To retrieve the .VOB durations, the files were downloaded and manually inspected.
+In order to get the event global times for visualisation, the video durations were extracted using the scripts in the `video_durations` folder. The 2D3D durations were extracted all at once, where as for ALACART this was done one by one. To retrieve the .VOB durations, the files were downloaded and manually inspected.
