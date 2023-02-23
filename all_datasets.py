@@ -5,6 +5,7 @@ import pandas as pd
 # Importing custom modules
 from ochra import extract_ochra, label_ochra, add_gst_ochra
 from testing import test_ochra
+from utils import info_label, info_error
 
 ## Chosing dataset to work with (either 2D3D or ALACART)
 dataset = '2D3D'
@@ -38,6 +39,19 @@ failed_files = ''  # 'failed_files' is used to store the cases whos' OCHRA data
 time_err_files = ''  # 'time_err_files' is used to store the cases where trying
 # to do calculations on the OCHRA times gives errors
 
+## Choosing type of statistical analysis for events
+analysis = 'errors'
+assert analysis in ['labels', 'errors']
+if analysis == 'labels':
+    # Allows to select whether to use the 'total' flag or not
+    info_ochra = (lambda ochra, statistical_category:
+                  info_label(ochra, statistical_category, total=False))
+elif analysis == 'errors':
+    info_ochra = info_error
+
+_, statistical_category = 'START', 'Tool-tissue Errors'
+print(f'{statistical_category} -- ', end='')
+
 ## Looping through all of the cases' Excel files in the Griffin dataset
 for file_name in files:
     # Getting the case number
@@ -64,7 +78,11 @@ for file_name in files:
             ochra = extract_ochra(analysis_xls)
             ochra = label_ochra(ochra, dataset)
             test_ochra(ochra, dataset)
-            check_failed = False
+
+            ## Making statistical analysis of events
+            print(f'Case {case}: ', end='')  # Comment this line if
+            # quantitying the results with statistical_analysis module
+            info_ochra(ochra, statistical_category)
         except:
             # If it is not possible to (correctly) retrieve the OCHRA data, the
             # case number is recorded
@@ -86,7 +104,8 @@ for file_name in files:
 missing_files, failed_files = missing_files[2:], failed_files[2:]
 time_err_files = time_err_files[2:]
 if True:
+    print('\n', end='')
     if missing_files:
-        print(f'Cases {missing_files} are missing')
+        print(f'\nCases {missing_files} are missing')
     if failed_files:
-        print(f'Cases {failed_files} have inappropriate OCHRA data')
+        print(f'\nCases {failed_files} have inappropriate OCHRA data')
