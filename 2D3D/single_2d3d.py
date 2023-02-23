@@ -1,4 +1,4 @@
-%reset_selective -f ^(?!failed_files$|calcerror_files$).*
+%reset_selective -f ^(?!failed_files$|time_err_files$).*
 
 ## Setting up environment & importing files
 import os
@@ -9,6 +9,7 @@ os.chdir('../')
 from spreadsheet import extract_ochra
 from ochra import label_ochra, add_gst_ochra
 from utils import info_label, info_error, visualise_gsts
+from testing import test_ochra
 os.chdir('2D3D')
 
 # Moving to directory where anotations are stored
@@ -21,9 +22,9 @@ annotations_dir = [('C:/Users/aleja/OneDrive - University College London/'
 os.chdir(annotations_dir[0])
 
 # Choosing file to work with later
-case = 5
+case = 1
 
-# Importing Excel file, particularly the 'Analysis' sheet within the file
+# Importing Excel file, particularly the 'Analysis' spreadsheet
 analysis_xls = pd.read_excel(f'Case {case}.xls', sheet_name='Analysis').values
 
 ## Extracting and saving OCHRA information
@@ -39,6 +40,9 @@ info_label(ochra, 'START', total=False)
 error_category = 'Tool-tissue Errors'
 print(f'\n{error_category} -- Case {case}: ', end='')
 info_error(ochra, error_category)
+
+## Checking OCHRA data is as expected
+test_ochra(ochra, '2d3d')
 
 ## Adding global timeline information to OCHRA
 ochra, end_hms = add_gst_ochra(ochra, ['START'], case, '2d3d')
