@@ -5,8 +5,7 @@ import os
 import pandas as pd
 
 # Importing custom modules
-from spreadsheet import extract_ochra
-from ochra import label_ochra, add_gst_ochra
+from ochra import extract_ochra, label_ochra, add_gst_ochra
 from utils import info_label, info_error, visualise_gsts
 from testing import test_ochra
 

@@ -3,9 +3,8 @@ import os
 import pandas as pd
 
 # Importing custom modules
+from ochra import extract_ochra, label_ochra, add_gst_ochra
 from testing import test_ochra
-from ochra import label_ochra, add_gst_ochra
-from spreadsheet import extract_ochra
 
 ## Chosing dataset to work with (either 2D3D or ALACART)
 dataset = '2D3D'
