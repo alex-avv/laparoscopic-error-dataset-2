@@ -37,7 +37,7 @@ file_name = []  # 'file_name' will keep the names of the video files detected
 
 
 def store_files_name(fname):
-    ''' Detects if a file has a video extension and saves its name path
+    ''' Detects if a file has a video extension and saves its name path.
     '''
     if fname[-4:len(fname)] in extension:
         path.append(fname[2:len(fname)])
@@ -49,7 +49,8 @@ def store_files_name(fname):
 
 
 def emptyFunction(nothing):
-    ''' Needed for later on (for the sftp.walktree() method) '''
+    ''' Needed later on (for the sftp.walktree() method).
+    '''
     pass
 
 
