@@ -53,8 +53,8 @@ def extract_ochra(analysis_xls):
             break
 
     if check_totals is False:
-        raise ValueError("Import unsuccessful: Could not find 'Totals' "
-                         "in 3rd column of analysis_xls.")
+        raise Exception("Import unsuccessful: Could not find 'Totals' "
+                        "in 3rd column of analysis_xls.")
 
     ## Looping through rows (from row with 'Totals' to 3rd row in the sheet)
     for ochra_last_row in reversed(range(2, totals_row)):
@@ -70,8 +70,8 @@ def extract_ochra(analysis_xls):
     # Sanity check to confirm the retrieved OCHRA data does not have a 'Totals'
     # instance
     if 'Totals' in ochra_xls:
-        raise ValueError("OCHRA data retrieved incorrectly: 'Totals' info was "
-                         "also extracted.")
+        raise Exception("OCHRA data retrieved incorrectly: 'Totals' info was "
+                        "also extracted.")
 
     ## Copying the OCHRA data into a new variable for modification. 'ochra'
     ## will contain the adjusted OCHRA information

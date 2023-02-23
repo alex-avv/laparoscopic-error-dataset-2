@@ -234,24 +234,18 @@ def add_gst_ochra(ochra, labels, case, dataset):
     if dataset not in ['alacart', '2d3d']:
         raise ValueError("Selected dataset must be be either 2D3D or ALACART.")
 
-    # Opening folder with the video data stored as .npy files
-    os.chdir('Video durations')
-
     # Noting down the column numbers of each video event
     if dataset == '2d3d':
         original, short, duration, glob_st = 0, 1, 2, 3
     elif dataset == 'alacart':
         path, original, short, duration, glob_st = 0, 1, 2, 3, 4
-
+    
     # Loading video data for the case
-    video = np.load(f'{case}.npy', allow_pickle=True)
-
+    video = np.load(f'Video durations/{case}.npy', allow_pickle=True)
+    
     # Discarding 'Path', 'Original name' and 'Duration' columns, keeping 'Short
     # form name' and 'Global start time' columns
     video_info = np.stack([video[:, short], video[:, glob_st]], axis=1)
-
-    # Returning to original working folder (i.e. one level up)
-    os.chdir('../')
 
     # Adding an empty column to hold the GSTs of the annotations
     ochra = np.insert(ochra, 4, np.full(len(ochra), np.nan), 1)

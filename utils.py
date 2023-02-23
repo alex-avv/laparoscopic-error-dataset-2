@@ -104,11 +104,11 @@ def info_error(ochra, err_name):
     # a 'ERR' label and a filled instance, printing the Error annotation.
     # Otherwise printing 'EMPTY'
     for row in range(len(ochra)):
-        if ochra[row, label] == 'ERR' and not isna(ochra[row, errors +
-                                                         error_i]):
+        if (ochra[row, label] == 'ERR' 
+                and not isna(ochra[row, errors + error_i])):
             print(f"'{ochra[row, errors + error_i]}', ", end='')
-        elif ochra[row, label] == 'ERR' and isna(ochra[row, errors +
-                                                       error_i]):
+        elif (ochra[row, label] == 'ERR'
+                  and isna(ochra[row, errors + error_i])):
             print("'EMPTY', ", end='')
 
 
