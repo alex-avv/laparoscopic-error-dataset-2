@@ -64,10 +64,10 @@ def extract_ochra(analysis_xls):
 
     Raises
     ------
-    ValueError
+    Exception
         Import unsuccessful: Could not find 'Totals' in 3rd column of
         analysis_xls.
-    ValueError
+    Exception
         OCHRA data retrieved incorrectly: 'Totals' info was also extracted.
 
     Returns

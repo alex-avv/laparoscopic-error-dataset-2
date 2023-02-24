@@ -105,10 +105,10 @@ def test_ochra(ochra, dataset, check_info='@$%&'):
                             or ochra[row, subfile][1:3] not in vid_letters):
                         if (ochra[row, subfile][0:2] not in vid_nums
                                 or ochra[row, subfile][2] not in vid_letters):
-                            raise ValueError("Subfile not as expected.")
+                            raise Exception("Subfile not as expected.")
                 # Any other options
                 else:
-                    raise ValueError("Subfile not as expected.")
+                    raise Exception("Subfile not as expected.")
 
     # Checking 'Further info' column
     for row in range(len(ochra)):
